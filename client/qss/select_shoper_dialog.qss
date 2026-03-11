@@ -1,0 +1,62 @@
+SelectShoperDialog {
+    background-color: #f0f0f0; 
+    border: 2px solid #4a4a4a;
+    border-radius: 10px;
+}
+#main-layout > QLabel { /* با استفاده از object name */
+    color: #333333;
+}
+QFrame {
+    background-color: #ffffff; 
+    border: 1px solid #cccccc; 
+    border-radius: 8px;
+    padding:10px;
+}
+
+/* استایل QListWidget */
+QListWidget {
+    background-color: #ffffff;
+    border: none;
+    outline: 0px;
+    padding: 5px;
+}
+
+/* استایل آیتم‌های لیست */
+QListWidget::Item {
+    padding: 10px;
+    color: #333333;
+    border-left: 4px solid transparent;
+}
+
+/* استایل آیتم در حالت هاور */
+QListWidget::Item:hover {
+    background-color: #e0f7fa;
+    border-left: 4px solid #005a9c;
+}
+QListWidget::Item:selected {
+    background-color: #005a9c;
+    color: white;
+    border-radius: 5px;
+}
+
+/* استایل QLineEdit */
+QLineEdit {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    padding: 8px;
+    color: #333333;
+    font-size: 20px;
+}
+
+/* حالت فوکوس */
+QLineEdit:focus {
+    border: 1px solid #005a9c;
+    background-color: #f9fdff;
+}
+
+/* placeholder */
+QLineEdit::placeholder {
+    color: #999999;
+}
+
