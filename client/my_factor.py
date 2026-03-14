@@ -235,14 +235,18 @@ class MyFactor():
         """
         Reaset myFactor
         """
-        self.__myfactor = {
-            "factor_id"      : factor_id,
-            "personnel_id"   : personnel_id,
-            "customer_id"    : customer_id,
-            "products"       : products,
-            "cash"           : cash,
-            "card"           : card
-        }
+        try:
+            self.__myfactor = {
+                "factor_id"      : factor_id,
+                "personnel_id"   : personnel_id,
+                "customer_id"    : customer_id,
+                "products"       : products,
+                "cash"           : cash,
+                "card"           : card
+            }
+        except Exception:
+            return False
+        return True
 
     # manager functions
     def __find_total(self, price: int, discount: int, num:int=1) -> int:
@@ -270,7 +274,7 @@ class MyFactor():
     def __str__(self):
         payment_amount = self.payment_amount
         products = self.products
-        width = 100
+        width = 100 +1
         res = ""
         res += f"\n╭{'MyFactor'.center(width-2, '─')}╮"
         res += f"\n│ {f'Factor ID      : {self.factor_id}'.ljust(width-4)} │"
@@ -285,7 +289,7 @@ class MyFactor():
         res += f"\n├{'─'*(width-2)}┤"
         res += f"\n│{f"Products({len(products)})".center(width-2)}│"
         if products:
-            d = (width-4)//5 -1
+            d = (width-7)//5 +1
             res += f"\n├{'─'*d}┳{'─'*d}┳{'─'*d}┳{'─'*d}┳{'─'*d}┤"
             res += f"\n│{'Name'.center(d)}│{'Price'.center(d)}│{'Num'.center(d)}│{'Discount'.center(d)}│{'Total'.center(d)}│"
             res += f"\n├{'─'*d}╋{'─'*d}╋{'─'*d}╋{'─'*d}╋{'─'*d}┤"

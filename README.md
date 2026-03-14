@@ -1,4 +1,4 @@
-# FoxAPI
+# FoxShop
 
 ## Project Status
 - License: MIT
@@ -6,13 +6,14 @@
 - Development Status: Beta
 
 ## Introduction
-This project is a backend API based on FastAPI for managing a Point of Sale (POS) system, including handling products, inventory, sales transactions, and authentication. It emphasizes Domain-Driven Design (DDD) principles and dependency injection.
+FoxShop is a Point of Sale (POS) system consisting of a FastAPI backend and a PyQt5 desktop client.  
+It manages products, inventory, sales transactions, and authentication while following Domain‑Driven Design (DDD) principles and dependency injection.
 
 ## Features
-- Asynchronous functionality using FastAPI
-- Strong validation with Pydantic
-- JWT-based security
-- Database-agnostic architecture
+- Fast and intuitive POS interface  
+- Backend powered by FastAPI (REST API)  
+- Real-time sales and inventory management  
+- Desktop client built with Python & PyQt5
 
 ## Quick Start
 ### Prerequisites
@@ -22,13 +23,7 @@ This project is a backend API based on FastAPI for managing a Point of Sale (POS
 1. Clone the repository.
 2. Activate the virtual environment.
 3. Install dependencies from `requirements.txt`.
-4. Run the system: `main.py`.
-
-## API Documentation
-Access the interactive API documentation at `http://127.0.0.1:8000/docs`.
-
-## Contributing
-Refer to the `CONTRIBUTING.md` file for contribution guidelines and pull request procedures.
+4. Run the system: `run.bat`.
 
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.

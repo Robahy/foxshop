@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QListWidget, 
                             QLabel, QFrame, QLineEdit)
 from PyQt5.QtGui import QFont
@@ -11,9 +12,11 @@ class SelectShoperDialog(QDialog):
     def __init__(self):
         super().__init__()
         
+        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setFixedSize(600, 600)
-        with open(".\\qss\\select_shoper_dialog.qss", 'r', encoding='utf-8') as f:
+        with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'select_shoper_dialog.qss'), 'r', encoding='utf-8') as f:
             self.setStyleSheet(f.read())
             
         

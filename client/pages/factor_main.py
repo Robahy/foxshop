@@ -1,11 +1,12 @@
 import sys
+import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                              QTableWidget, QLineEdit, QLabel, QPushButton,
                              QGridLayout, QFrame, QSizePolicy, QSpacerItem, QHeaderView, QDialog,
                              QTableWidgetItem, QAbstractItemView, QMessageBox, QInputDialog)
 from PyQt5.QtCore import Qt, QTime, QTimer
 from PyQt5.QtGui import QFont, QColor
-from select_shoper_dialog import SelectShoperDialog
+from dialogs.select_shoper_dialog import SelectShoperDialog
 from database import get_product_by_barcode
 from my_factor import MyFactor
 import winsound
@@ -18,43 +19,58 @@ class FactorTableWidget(QTableWidget):
 
         self.setColumnCount(7)
         self.setHorizontalHeaderLabels([
-            "line",
-            "Barcode", 
-            "Name",
-            "Price",
-            "discount", 
+            "Total",
             "number",
-            "Total"
+            "discount",
+            "Price",
+            "Name",
+            "Barcode",
+            "line"
         ])
 
+        # width tab
         self.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents) 
-        self.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch) 
+        self.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents) 
         self.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents) 
-        self.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeToContents) 
+        self.horizontalHeader().setSectionResizeMode(4, QHeaderView.Stretch) 
         self.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeToContents) 
         self.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeToContents) 
         
-        self.setShowGrid(False)
-        self.setAlternatingRowColors(True)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.verticalHeader().setVisible(False)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)   # Hide Scrool
+        self.setShowGrid(False)                                  # Hide Grid
+        self.setAlternatingRowColors(True)                       # Alternationg
+        self.setEditTriggers(QTableWidget.NoEditTriggers)        # No Edit
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)  # Row Select
+        self.setSelectionMode(QAbstractItemView.SingleSelection) # Single Select
+        self.verticalHeader().setVisible(False)                  # Hiden Number Row
+        self.setFocusPolicy(Qt.StrongFocus)                      # Select
 
-    def reload(self) -> bool:
-        """
-        Update Factor
-        """
+    def reload(self, scrool_to_buttom: bool = False) -> bool:
         try:
+
+            scroll_pos = self.verticalScrollBar().value()
+            selected = self.currentRow()
+
             self.setRowCount(0)
             for i, data in enumerate(self.my_factor.products):
                 self.__add_item(data)
                 if self.my_factor.is_removed_product(i):
                     self.__set_strike_out(i)
+            
+            if scrool_to_buttom:
+                self.scrollToBottom()
+            else:
+                self.verticalScrollBar().setValue(scroll_pos)
+
+            if selected != -1:
+                self.setCurrentCell(selected, 0)
+
         except Exception:
             return False
         return True
+
+
 
     def __add_item(self, data) -> bool:
         """
@@ -64,17 +80,22 @@ class FactorTableWidget(QTableWidget):
             row = self.rowCount()
             self.insertRow(row)
             data = [
-                row+1,
-                data.get('barcode'),
-                data.get('pname'),
-                data.get('price'),
-                f"{data.get('discount')}%",
+                data.get('total'),
                 data.get('no'),
-                data.get('total')
+                f"{data.get('discount')}%",
+                data.get('price'),
+                data.get('pname'),
+                data.get('barcode'),
+                row+1
             ]
+
             for col, value in enumerate(data):
-                self.setItem(row, col, QTableWidgetItem(str(value)))
-            self.scrollToBottom()
+                item = QTableWidgetItem(str(value))
+                if col != 4:
+                    item.setTextAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+                else:
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self.setItem(row, col, item)
         except Exception:
             return False
         return True
@@ -102,9 +123,9 @@ class FactorMain(QMainWindow):
         ):
         super().__init__()
         self.setWindowTitle("Fox Shoper")
-        
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
+        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.__initUI()
         self.__load_qss()
 
@@ -122,7 +143,7 @@ class FactorMain(QMainWindow):
     def __load_qss(self):
         """Loads stylesheets from an external QSS file."""
         try:
-            with open(".\\qss\\factor_main.qss", 'r', encoding='utf-8') as f:
+            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r', encoding='utf-8') as f:
                 style = f.read()
                 self.setStyleSheet(style)
         except:
@@ -177,59 +198,56 @@ class FactorMain(QMainWindow):
                 # گرید دکمه‌ها (تعریف دستی بدون استفاده از لیست)
         grid = QGridLayout()
         grid.setSpacing(6)
-        grid.setContentsMargins(0, 0, 0, 0) # حذف حاشیه داخلی گرید
+        grid.setContentsMargins(0, 0, 0, 0)
 
-        # --- دکمه اول: بارکدهای ذخیره شده ---
-        btn_saved_barcodes = QPushButton("بارکدهای ذخیره شده")
-        btn_saved_barcodes.setStyleSheet("background-color: #e4f7e4; border: 1px solid #3c763d;")
-        # btn_saved_barcodes.clicked.connect()
-        grid.addWidget(btn_saved_barcodes, 0, 0)
+        self.__btn_saved_barcodes = QPushButton("بارکدهای ذخیره شده")
+        self.__btn_saved_barcodes.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_saved_barcodes, 0, 0)
 
-        self.__btn_set_num_product = QPushButton("تعداد (F8)")
-        self.__btn_set_num_product.setStyleSheet("background-color: #e4f7e4; border: 1px solid #3c763d;")
-        self.__btn_set_num_product.clicked.connect(self.__set_number_item)
-        grid.addWidget(self.__btn_set_num_product, 0, 1)
+        self.__btn_more_option = QPushButton("سایر موارد")
+        self.__btn_more_option.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_more_option, 0, 1)
 
-        # --- دکمه سوم: ابطال کالا (F10) ---
         self.__btn_cancel_item = QPushButton("ابطال کالا (F10)")
-        self.__btn_cancel_item.setStyleSheet("background-color: #fce4e4; border: 1px solid #d9534f;")
+        self.__btn_cancel_item.setObjectName('btn-panel')
         grid.addWidget(self.__btn_cancel_item, 1, 0)
 
-        # --- دکمه دوم: ابطال فاکتور ---
         self.__btn_cancel_factor = QPushButton("ابطال فاکتور")
-        self.__btn_cancel_factor.setStyleSheet("background-color: #fce4e4; border: 1px solid #d9534f;")
+        self.__btn_cancel_factor.setObjectName('btn-panel')
         grid.addWidget(self.__btn_cancel_factor, 1, 1)
 
-        # --- دکمه چهارم: ابطال پرداخت ---
-        btn_cancel_payment = QPushButton("ابطال پرداخت")
-        btn_cancel_payment.setStyleSheet("background-color: #fce4e4; border: 1px solid #d9534f;")
-        btn_cancel_payment.clicked.connect(lambda: self.__side_button_clicked("ابطال پرداخت"))
-        grid.addWidget(btn_cancel_payment, 2, 0)
+        self.__btn_set_num_product = QPushButton("تعداد (F8)")
+        self.__btn_set_num_product.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_set_num_product, 2, 0)
 
-        # --- دکمه پنجم: (F2) نمایش قیمت ---
-        btn_show_price = QPushButton("(F2) نمایش قیمت")
-        btn_show_price.setStyleSheet("background-color: #e4f7e4; border: 1px solid #3c763d;")
-        # btn_show_price.clicked.connect()
-        grid.addWidget(btn_show_price, 2, 1)
+        self.__btn_payment = QPushButton("پرداخت")
+        self.__btn_payment.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_payment, 2, 1)
         
-        
-        btn_show_price = QPushButton("بستن شیفت")
-        btn_show_price.setStyleSheet("background-color: #fce4e4; border: 1px solid #3c763d;")
-        btn_show_price.clicked.connect(self.__select_shoper)
-        grid.addWidget(btn_show_price, 3, 0)
-
-
+        self.__btn_change_shoper = QPushButton("باز/بستن شیفت")
+        self.__btn_change_shoper.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_change_shoper, 3, 0)
         side_layout.addLayout(grid)
 
+        btn_cancel_payment = QPushButton("ابطال پرداخت")
+        btn_cancel_payment.setObjectName('btn-panel')
+        grid.addWidget(btn_cancel_payment, 3, 1)
+
+        self.__btn_show_price = QPushButton("(F2) نمایش قیمت")
+        self.__btn_show_price.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_show_price, 4, 0)
+        
+        self.__btn_admin_action = QPushButton("عملیات سرپرستی")
+        self.__btn_admin_action.setObjectName('btn-panel')
+        grid.addWidget(self.__btn_admin_action, 4, 1)
+        side_layout.addLayout(grid)
 
         self.__exit_btn = QPushButton("خروج")
-        self.__exit_btn.setObjectName("exitBtn")
-        # self.exit_btn.setFixedSize(210, 45)
+        self.__exit_btn.setObjectName("btn-panel")
         side_layout.addWidget(self.__exit_btn)
 
         bottom_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         side_layout.addItem(bottom_spacer)
-
 
         center_container.addWidget(side_panel, 1) 
 
@@ -240,99 +258,10 @@ class FactorMain(QMainWindow):
         bottom_layout.setContentsMargins(15, 10, 15, 15)
         bottom_layout.setSpacing(10)
 
-        # --- دکمه‌های پرداخت (تعریف دستی) ---
-        payment_layout = QGridLayout()
-        payment_layout.setSpacing(8)
-        payment_layout.setContentsMargins(0, 0, 0, 0)
-
-                # --- ردیف اول: تعریف دستی دکمه‌ها ---
-
-        # دکمه اول ردیف اول: نقد
-        btn_cash = QPushButton("نقد")
-        btn_cash.setFixedHeight(50)
-        btn_cash.setFont(QFont("Tahoma", 12))
-        btn_cash.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;") 
-        # btn_cash.clicked.connect()
-        payment_layout.addWidget(btn_cash, 0, 0)
-
-        # دکمه دوم ردیف اول: تخفیف مبلغ و کارتون
-        btn_discount = QPushButton("تخفیف مبلغ و کارتون")
-        btn_discount.setFixedHeight(50)
-        btn_discount.setFont(QFont("Tahoma", 12))
-        btn_discount.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;") 
-        # btn_discount.clicked.connect()
-        payment_layout.addWidget(btn_discount, 0, 1)
-        
-        # دکمه سوم ردیف اول: تعداد
-        btn_count = QPushButton("تعداد")
-        btn_count.setFixedHeight(50)
-        btn_count.setFont(QFont("Tahoma", 12))
-        btn_count.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;") 
-        # btn_count.clicked.connect()
-        payment_layout.addWidget(btn_count, 0, 2)
-
-        # دکمه چهارم ردیف اول: پرداخت کالبرگ (ایران کیش)
-        btn_kalbarg = QPushButton("پرداخت کالبرگ (ایران کیش)")
-        btn_kalbarg.setFixedHeight(50)
-        btn_kalbarg.setFont(QFont("Tahoma", 12))
-        btn_kalbarg.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;") 
-        btn_kalbarg.clicked.connect(lambda: self.__payment_button_clicked("پرداخت کالبرگ (ایران کیش)"))
-        payment_layout.addWidget(btn_kalbarg, 0, 3)
-
-        # دکمه پنجم ردیف اول: استعلام بانک‌ها
-        btn_bank_inquiry = QPushButton("استعلام بانک‌ها")
-        btn_bank_inquiry.setFixedHeight(50)
-        btn_bank_inquiry.setFont(QFont("Tahoma", 12))
-        btn_bank_inquiry.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;") 
-        btn_bank_inquiry.clicked.connect(lambda: self.__payment_button_clicked("استعلام بانک‌ها"))
-        payment_layout.addWidget(btn_bank_inquiry, 0, 4)
-
-
-        # --- ردیف دوم: تعریف دستی دکمه‌ها ---
-
-        # دکمه اول ردیف دوم: بانک ملی
-        btn_bank_meli = QPushButton("بانک ملی")
-        btn_bank_meli.setFixedHeight(50)
-        btn_bank_meli.setFont(QFont("Tahoma", 12))
-        btn_bank_meli.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;")
-        btn_bank_meli.clicked.connect(lambda: self.__payment_button_clicked("بانک ملی"))
-        payment_layout.addWidget(btn_bank_meli, 1, 0)
-        
-        # دکمه دوم ردیف دوم: بانک ملت
-        btn_bank_mellat = QPushButton("بانک ملت")
-        btn_bank_mellat.setFixedHeight(50)
-        btn_bank_mellat.setFont(QFont("Tahoma", 12))
-        btn_bank_mellat.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;")
-        btn_bank_mellat.clicked.connect(lambda: self.__payment_button_clicked("بانک ملت"))
-        payment_layout.addWidget(btn_bank_mellat, 1, 1)
-        
-        # دکمه سوم ردیف دوم: بانک سامان
-        btn_bank_saman = QPushButton("بانک سامان")
-        btn_bank_saman.setFixedHeight(50)
-        btn_bank_saman.setFont(QFont("Tahoma", 12))
-        btn_bank_saman.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;")
-        btn_bank_saman.clicked.connect(lambda: self.__payment_button_clicked("بانک سامان"))
-        payment_layout.addWidget(btn_bank_saman, 1, 2)
-        
-        # دکمه چهارم ردیف دوم: بانک پاسارگاد
-        btn_bank_pasargad = QPushButton("بانک پاسارگاد")
-        btn_bank_pasargad.setFixedHeight(50)
-        btn_bank_pasargad.setFont(QFont("Tahoma", 12))
-        btn_bank_pasargad.setStyleSheet("background-color: #eef2f5; border: 1px solid #bcc2ca; border-radius: 4px;")
-        btn_bank_pasargad.clicked.connect(lambda: self.__payment_button_clicked("بانک پاسارگاد"))
-        payment_layout.addWidget(btn_bank_pasargad, 1, 3)
-
-        # اضافه کردن فضای خالی برای ستون پنجم ردیف دوم (برای تراز شدن با ردیف اول)
-        empty_widget_r2_c4 = QWidget()
-        payment_layout.addWidget(empty_widget_r2_c4, 1, 4)
-
-        bottom_layout.addLayout(payment_layout)
-
-
         # --- نوار وضعیت ---
         status_layout = QVBoxLayout()
         status_layout.setContentsMargins(0, 5, 0, 5)
-        status_layout.setSpacing(6)
+        status_layout.setSpacing(20)
 
         row1 = QHBoxLayout()
         row1.setSpacing(20)
@@ -439,8 +368,10 @@ class FactorMain(QMainWindow):
         self.__table.itemClicked.connect(self.__check_btn_disabled)
         self.__line_edit_barcode.returnPressed.connect(self.__return_peresed_line_edit)
         self.__exit_btn.clicked.connect(self.close)
+        self.__btn_set_num_product.clicked.connect(self.__set_number_item)
         self.__btn_cancel_item.clicked.connect(self.__remove_item)
         self.__btn_cancel_factor.clicked.connect(self.__remove_factor)
+        self.__btn_change_shoper.clicked.connect(self.__select_shoper)
 
     def __update_clock(self):
         current_time = QTime.currentTime().toString("HH:mm:ss")
@@ -458,8 +389,9 @@ class FactorMain(QMainWindow):
         else:
             super().keyPressEvent(event)
 
-    def __select_shoper(self):
+    def __select_shoper(self) -> bool:
         try:
+            print('ok')
             self.__shoper = SelectShoperDialog()
             if self.__shoper.exec_() == QDialog.Accepted:
                 self.myfactor.set_personnel_id(self.__shoper.id)
@@ -472,10 +404,11 @@ class FactorMain(QMainWindow):
     
     def __return_peresed_line_edit(self):
         barcode = self.__line_edit_barcode.text()
-        self.__add_item_by_barcode(barcode)
+        if not self.__add_item_by_barcode(barcode):
+            winsound.MessageBeep()
         self.__line_edit_barcode.setText("")
 
-    def __add_item_by_barcode(self, barcode):
+    def __add_item_by_barcode(self, barcode) -> bool:
         try:
             product = get_product_by_barcode(barcode)
             if product:
@@ -488,18 +421,17 @@ class FactorMain(QMainWindow):
             else:
                 raise RuntimeError
         except Exception:
-            winsound.MessageBeep()
             return False
-        finally:
+        else:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
         return True
     
-    def __set_number_item(self):
+    def __set_number_item(self) -> bool:
         try:
             row = self.__table.currentRow()
-            if row != -1 :
+            if row != -1 and not self.myfactor.is_removed_product(row):
                 num, ok = QInputDialog.getInt(self, "set number", "Enter number", self.myfactor.products[row].get('no'))
                 if ok:
                     if not self.myfactor.set_number_product(row, num):
@@ -509,13 +441,13 @@ class FactorMain(QMainWindow):
         except Exception as e:
             print(e)
             return False
-        finally:
+        else:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
         return True
 
-    def __remove_item(self):
+    def __remove_item(self) -> bool:
         try:
             row = self.__table.currentRow()
             if row != -1:
@@ -529,7 +461,7 @@ class FactorMain(QMainWindow):
                 raise RuntimeError
         except Exception:
             return False
-        finally:
+        else:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
@@ -545,7 +477,7 @@ class FactorMain(QMainWindow):
                 raise RuntimeError
         except Exception:
             return False
-        finally:
+        else:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
