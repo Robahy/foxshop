@@ -76,11 +76,8 @@ class BarcodePage(QMainWindow):
         self.list_widget.addItem(item)
         self.list_widget.setItemWidget(item, widget)
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    
 
     window = BarcodePage()
     window.showFullScreen()

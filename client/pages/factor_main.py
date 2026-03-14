@@ -126,7 +126,7 @@ class FactorMain(QMainWindow):
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.__initUI()
+        self.__setup_ui()
         self.__load_qss()
 
         timer = QTimer(self)
@@ -149,7 +149,7 @@ class FactorMain(QMainWindow):
         except:
             pass
 
-    def __initUI(self):
+    def __setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
@@ -162,7 +162,6 @@ class FactorMain(QMainWindow):
 
         font = QFont("Tahoma", 11)
         self.__table.setFont(font)
-        self.__table.setStyleSheet("font-size: 12px;")
 
         center_container.addWidget(self.__table, 4)
 
@@ -175,7 +174,6 @@ class FactorMain(QMainWindow):
         side_layout.addItem(top_spacer)
         
         barcode_label = QLabel("بارکد")
-        barcode_label.setStyleSheet("font-size: 0.5rem; font-weight: bold")
         barcode_label.setAlignment(Qt.AlignLeft)
 
         self.__line_edit_barcode = QLineEdit()
@@ -333,7 +331,6 @@ class FactorMain(QMainWindow):
         lbl_balance.setObjectName("statusTitle")
         self.__balance_lbl = QLabel("0")
         self.__balance_lbl.setObjectName("statusRes")
-        self.__balance_lbl.setStyleSheet("font-size: 30px;")
         self.__balance_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g6.addWidget(lbl_balance)
         g6.addStretch(1)
@@ -349,14 +346,11 @@ class FactorMain(QMainWindow):
         footer_layout.setContentsMargins(0, 0, 0, 0)
         
         self.__nameShoperLable = QLabel("Shoper: Selecting...")
-        self.__nameShoperLable.setStyleSheet("font-size: 0.7rem; color: #555;")
         footer_layout.addWidget(self.__nameShoperLable)
         
         footer_layout.addStretch()
         self.__statusLable = QLabel("Connected to store database | Suspended transactions: 0 |")
         self.__clock = QLabel("")
-        self.__statusLable.setStyleSheet("font-size:0.7rem; color: #555;")
-        self.__clock.setStyleSheet("font-size:0.7; color: #555;")
         footer_layout.addWidget(self.__statusLable)
         footer_layout.addWidget(self.__clock)
 
@@ -447,7 +441,7 @@ class FactorMain(QMainWindow):
             self.__check_btn_disabled()
         return True
 
-    def __remove_item(self) -> bool:
+    def __remove_item(self):
         try:
             row = self.__table.currentRow()
             if row != -1:

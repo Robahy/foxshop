@@ -1,37 +1,64 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-    QPushButton, QLineEdit, QGridLayout
+    QPushButton, QLineEdit, QGridLayout, QLabel
 )
-import sys
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtCore import Qt
+from string import digits
+import sys, os
 
 
-class KeypadWindow(QWidget):
-    def __init__(self):
+class CashPage(QWidget):
+    def __init__(self, max:int):
         super().__init__()
-        self.setWindowTitle("صفحه پرداخت")
-        self.setup_ui()
-        self.apply_style()
+        self.setWindowTitle('cash page')
+
+        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.max = max
+        self.cash_num = self.max
+
+
+        self.__setup_ui()
+        self.__load_qss()
         self.showFullScreen()
 
-    def setup_ui(self):
+        self.line_edit.setFocus()
+
+    def __load_qss(self):
+        try:
+            qss_path = os.path.join(self.__BASE_DIR, '..', 'qss', 'cash_page.qss')
+            with open(qss_path, 'r', encoding='utf-8') as f:
+                self.setStyleSheet(f.read())
+        except Exception as e:
+            print("QSS load failed:", e)
+
+    def __setup_ui(self):
         BUTTON_W, BUTTON_H = 100, 80
         SIDE_BTN_W, SIDE_BTN_H = 160, 80
         BOTTOM_BTN_W, BOTTOM_BTN_H = 200, 80
         GRID_SPACING = 12
 
         outer = QVBoxLayout()
-        outer.addStretch()
 
+        # ===== عنوان بالا =====
+        title = QLabel("پرداخت نقدی")
+        title.setObjectName("cashTitle")
+        title.setAlignment(Qt.AlignCenter)
+        outer.addWidget(title)
+
+        outer.addSpacing(30)
+
+        # ===== بخش اصلی =====
         middle_h = QHBoxLayout()
         middle_h.addStretch()
 
         center = QHBoxLayout()
-
-        # سمت چپ
         left = QVBoxLayout()
-        keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
 
-        self.line_edit = QLineEdit()
+        keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
+        self.line_edit = QLineEdit(f"{self.max:,}")
+        self.line_edit.setFocusPolicy(Qt.StrongFocus)
+        self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.line_edit.setFixedWidth(keypad_width)
         self.line_edit.setFixedHeight(50)
         left.addWidget(self.line_edit)
@@ -49,17 +76,27 @@ class KeypadWindow(QWidget):
         for text,r,c in buttons:
             b = QPushButton(text)
             b.setFixedSize(BUTTON_W, BUTTON_H)
-            b.clicked.connect(lambda _,t=text:self.button_clicked(t))
+            b.clicked.connect(lambda _,t=text:self.num_pad_clicked(t))
             grid.addWidget(b, r, c)
 
         left.addLayout(grid)
 
-        # سمت راست
         right = QVBoxLayout()
-        for label in ["کل مبلغ", "50,000", "10,000"]:
-            b = QPushButton(label)
-            b.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-            right.addWidget(b)
+
+        btn_fix = QPushButton(f"{self.max:,}")
+        btn_fix.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        btn_fix.clicked.connect(self.close)
+        right.addWidget(btn_fix)
+
+        btn_50 = QPushButton(f"50,000")
+        btn_50.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        btn_50.clicked.connect(self.__add_50)
+        right.addWidget(btn_50)
+
+        btn_10 = QPushButton(f"10,000")
+        btn_10.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        btn_10.clicked.connect(self.__add_10)
+        right.addWidget(btn_10)
 
         center.addLayout(left)
         center.addSpacing(30)
@@ -68,68 +105,69 @@ class KeypadWindow(QWidget):
         middle_h.addLayout(center)
         middle_h.addStretch()
 
+        outer.addStretch()
         outer.addLayout(middle_h)
         outer.addStretch()
 
-        # پایین صفحه
+        # ===== دکمه‌های پایین =====
         bottom = QHBoxLayout()
         bottom.addStretch()
 
-        cancel_btn = QPushButton("لغو")
         confirm_btn = QPushButton("تأیید")
-        cancel_btn.setObjectName("cancelButton")
-        confirm_btn.setObjectName("confirmButton")
+        cancel_btn = QPushButton("لغو")
 
-        cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
+        confirm_btn.clicked.connect(self.close)
+        cancel_btn.clicked.connect(self.close)
+
         confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
+        cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
 
-        bottom.addWidget(cancel_btn)
-        bottom.addSpacing(30)
         bottom.addWidget(confirm_btn)
+        bottom.addSpacing(30)
+        bottom.addWidget(cancel_btn)
         bottom.addStretch()
 
         outer.addLayout(bottom)
+
         self.setLayout(outer)
 
-    def button_clicked(self, text):
+    def __add_50(self):
+        self.cash_num = 50000
+        self.line_edit.setText(f"{self.cash_num:,}")
+        self.close()
+    
+    def __add_10(self):
+        self.cash_num = 10000
+        self.line_edit.setText(f"{self.cash_num:,}")
+        self.close()
+
+    def num_pad_clicked(self, text):
+        content = self.line_edit.text()
         if text == "C":
-            self.line_edit.clear()
+            self.line_edit.setText('0')
         elif text == "⌫":
-            self.line_edit.setText(self.line_edit.text()[:-1])
+            if len(content) <= 1:
+                self.cash_num = 0
+            else:
+                self.line_edit.setText(self.line_edit.text()[:-1])
         else:
-            self.line_edit.setText(self.line_edit.text() + text)
+            if content == '0':
+                self.line_edit.setText(text)
+            else:
+                self.line_edit.setText(self.line_edit.text() + text)
+        self.line_edit.setText(f"{self.cash_num:,}")
+        self.line_edit.setFocus()
 
-    def apply_style(self):
-        self.setStyleSheet("""
-        QWidget{
-            background:#1e1e1e;
-            font-family:Tahoma;
-        }
-        QLineEdit{
-            background:#2b2b2b;
-            color:white;
-            border:2px solid #3c3c3c;
-            border-radius:10px;
-            padding:8px;
-            font-size:24px;
-        }
-        QPushButton{
-            background:#3a3a3a;
-            color:white;
-            border:1px solid #555;
-            border-radius:12px;
-            font-size:24px;
-        }
-        QPushButton#cancelButton{
-            background:#b22222;
-        }
-        QPushButton#confirmButton{
-            background:#228b22;
-        }
-        """)
-        
+    def __changed_line_edit(self, text):
+        if (text and text[-1] in digits):
+            self.cash_num = int(text.replace(',', '') or 0)
+        else:
+            self.cash_num = 0
+        self.line_edit.setText(f"{self.cash_num:,}")
+        self.line_edit.setFocus()
 
-app = QApplication(sys.argv)
-window = KeypadWindow()
-window.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = CashPage(200000)
+    window.show()
+    sys.exit(app.exec_())
