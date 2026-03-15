@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                              QTableWidgetItem, QAbstractItemView, QMessageBox, QInputDialog)
 from PyQt5.QtCore import Qt, QTime, QTimer
 from PyQt5.QtGui import QFont, QColor
-from dialogs import SelectShoperDialog, YesNoDialog, CashDialog
+from dialogs import SelectShoperDialog, YesNoDialog, NumberDialog, CashDialog
 from database import get_product_by_barcode
 from my_factor import MyFactor
 import winsound
@@ -108,7 +108,6 @@ class FactorTableWidget(QTableWidget):
                         font = item.font()
                         font.setStrikeOut(True)
                         item.setFont(font)
-                        item.setBackground(QColor(240, 240, 240))
                         item.setForeground(QColor(150, 150, 150))
         except Exception:
             return False
@@ -266,9 +265,9 @@ class FactorMain(QMainWindow):
 
         g1 = QHBoxLayout()
         lbl_rows = QLabel("تعداد سطر فاکتور")
-        lbl_rows.setObjectName("statusTitle")
+        lbl_rows.setObjectName("status-title")
         self.__row_count_lbl = QLabel("0")
-        self.__row_count_lbl.setObjectName("statusRes")
+        self.__row_count_lbl.setObjectName("status-res")
         self.__row_count_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g1.addWidget(lbl_rows)
         g1.addStretch(1)
@@ -277,9 +276,9 @@ class FactorMain(QMainWindow):
 
         g2 = QHBoxLayout()
         number_product = QLabel("تعداد اقلام")
-        number_product.setObjectName("statusTitle")
+        number_product.setObjectName("status-title")
         self.__len_products = QLabel("0")
-        self.__len_products.setObjectName("statusRes")
+        self.__len_products.setObjectName("status-res")
         self.__len_products.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g2.addWidget(number_product)
         g2.addStretch(1)
@@ -288,9 +287,9 @@ class FactorMain(QMainWindow):
 
         g3 = QHBoxLayout()
         lbl_discount = QLabel("مجموع تخفیف")
-        lbl_discount.setObjectName("statusTitle")
+        lbl_discount.setObjectName("status-title")
         self.__discount_lbl = QLabel("0")
-        self.__discount_lbl.setObjectName("statusRes")
+        self.__discount_lbl.setObjectName("status-res")
         self.__discount_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g3.addWidget(lbl_discount)
         g3.addStretch(1)
@@ -304,9 +303,9 @@ class FactorMain(QMainWindow):
 
         g4 = QHBoxLayout()
         lbl_total = QLabel("مجموع")
-        lbl_total.setObjectName("statusTitle")
+        lbl_total.setObjectName("status-title")
         self.__total_lbl = QLabel("0")
-        self.__total_lbl.setObjectName("statusRes")
+        self.__total_lbl.setObjectName("status-res")
         self.__total_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g4.addWidget(lbl_total)
         g4.addStretch(1)
@@ -316,9 +315,9 @@ class FactorMain(QMainWindow):
         # پرداخت
         g5 = QHBoxLayout()
         lbl_payment = QLabel("پرداخت")
-        lbl_payment.setObjectName("statusTitle")
+        lbl_payment.setObjectName("status-title")
         self.__payment_lbl = QLabel("0")
-        self.__payment_lbl.setObjectName("statusRes")
+        self.__payment_lbl.setObjectName("status-res")
         self.__payment_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g5.addWidget(lbl_payment)
         g5.addStretch(1)
@@ -328,9 +327,9 @@ class FactorMain(QMainWindow):
         # مانده حساب (صفر بزرگ‌تر)
         g6 = QHBoxLayout()
         lbl_balance = QLabel("مانده حساب")
-        lbl_balance.setObjectName("statusTitle")
+        lbl_balance.setObjectName("status-title")
         self.__balance_lbl = QLabel("0")
-        self.__balance_lbl.setObjectName("statusRes")
+        self.__balance_lbl.setObjectName("status-balance")
         self.__balance_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         g6.addWidget(lbl_balance)
         g6.addStretch(1)
@@ -425,14 +424,13 @@ class FactorMain(QMainWindow):
         try:
             row = self.__table.currentRow()
             if row != -1 and not self.myfactor.is_removed_product(row):
-                num, ok = QInputDialog.getInt(self, "set number", "Enter number", self.myfactor.products[row].get('no'))
-                if ok:
-                    if not self.myfactor.set_number_product(row, num):
+                number = NumberDialog()
+                if number.exec_() == QDialog.Accepted:
+                    if not self.myfactor.set_number_product(row, number.num):
                         raise RuntimeError
             else:
                 raise RuntimeError
-        except Exception as e:
-            print(e)
+        except Exception:
             return False
         finally:
             self.__table.reload()
@@ -462,7 +460,7 @@ class FactorMain(QMainWindow):
 
     def __remove_factor(self):
         try:
-            yes_no = YesNoDialog("Are you sure remove factor?")
+            yes_no = YesNoDialog("آیا میخواهید فاکتور حذف شود؟")
             if yes_no.exec_() == QDialog.Accepted:
                 if not self.myfactor.reset_factor(
                         factor_id    = -1,
@@ -493,17 +491,17 @@ class FactorMain(QMainWindow):
         self.__balance_lbl.setText(str(self.myfactor.balance))
 
     def __check_btn_disabled(self):
-        is_select_item = self.__table.currentRow() != -1
-        is_item        = self.__table.rowCount()
+        row_selected = self.__table.currentRow()
+        row_count       = self.__table.rowCount()
 
-        if is_select_item:
+        if row_selected != -1:
             self.__btn_cancel_item.setDisabled(False)
-            self.__btn_set_num_product.setDisabled(False)
+            self.__btn_set_num_product.setDisabled(self.myfactor.is_removed_product(row_selected))
         else:
             self.__btn_cancel_item.setDisabled(True)
             self.__btn_set_num_product.setDisabled(True)
 
-        if is_item:
+        if row_count:
             self.__btn_cancel_factor.setDisabled(False)
         else:
             self.__btn_cancel_factor.setDisabled(True)

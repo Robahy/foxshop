@@ -8,14 +8,13 @@ from string import digits
 import sys, os, winsound
 
 
-class CashDialog(QDialog):
-    def __init__(self, max:int):
+class NumberDialog(QDialog):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle('cash page')
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.max = max
-        self.__cash_num = self.max
+        self.__num = 0
 
         self.__setup_ui()
         self.showFullScreen()
@@ -23,7 +22,7 @@ class CashDialog(QDialog):
         self.line_edit.setFocus()
 
         try:
-            qss_path = os.path.join(self.__BASE_DIR, '..', 'qss', 'cash_dialog.qss')
+            qss_path = os.path.join(self.__BASE_DIR, '..', 'qss', 'number_dialog.qss')
             with open(qss_path, 'r', encoding='utf-8') as f:
                 self.setStyleSheet(f.read())
         except Exception:
@@ -37,7 +36,7 @@ class CashDialog(QDialog):
 
         outer = QVBoxLayout()
 
-        title = QLabel("پرداخت نقدی")
+        title = QLabel("تعداد")
         title.setObjectName("cashTitle")
         title.setAlignment(Qt.AlignCenter)
         outer.addWidget(title)
@@ -51,7 +50,7 @@ class CashDialog(QDialog):
         left = QVBoxLayout()
 
         keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
-        self.line_edit = QLineEdit(f"{self.max:,}")
+        self.line_edit = QLineEdit("0")
         self.line_edit.setFocusPolicy(Qt.StrongFocus)
         self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.line_edit.setFixedWidth(keypad_width)
@@ -78,21 +77,6 @@ class CashDialog(QDialog):
 
         right = QVBoxLayout()
 
-        btn_fix = QPushButton(f"{self.max:,}")
-        btn_fix.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_fix.clicked.connect(self.accept)
-        right.addWidget(btn_fix)
-
-        btn_50 = QPushButton("50,000")
-        btn_50.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_50.clicked.connect(self.__add_50)
-        right.addWidget(btn_50)
-
-        btn_10 = QPushButton("10,000")
-        btn_10.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_10.clicked.connect(self.__add_10)
-        right.addWidget(btn_10)
-
         center.addLayout(left)
         center.addSpacing(30)
         center.addLayout(right)
@@ -110,7 +94,7 @@ class CashDialog(QDialog):
         confirm_btn = QPushButton("تأیید")
         cancel_btn = QPushButton("لغو")
 
-        confirm_btn.clicked.connect(self.__down)
+        confirm_btn.clicked.connect(self.accept)
         cancel_btn.clicked.connect(self.reject)
 
         confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
@@ -125,29 +109,13 @@ class CashDialog(QDialog):
 
         self.setLayout(outer)
 
-    def __add_50(self):
-        self.__cash_num = 50000
-        self.line_edit.setText(f"{self.cash_num:,}")
-        self.accept()
-    
-    def __add_10(self):
-        self.__cash_num = 10000
-        self.line_edit.setText(f"{self.cash_num:,}")
-        self.accept()
-
-    def __down(self):
-        if self.cash_num == self.max:
-            self.reject()
-        else:
-            self.accept()
-
     def __num_pad_clicked(self, text):
         content = self.line_edit.text()
         if text == "C":
             self.line_edit.setText('0')
         elif text == "⌫":
             if len(content) <= 1:
-                self.__cash_num = 0
+                self.__num = 0
             else:
                 self.line_edit.setText(self.line_edit.text()[:-1])
         else:
@@ -155,15 +123,15 @@ class CashDialog(QDialog):
                 self.line_edit.setText(text)
             else:
                 self.line_edit.setText(self.line_edit.text() + text)
-        self.line_edit.setText(f"{self.__cash_num:,}")
+        self.line_edit.setText(f"{self.__num}")
         self.line_edit.setFocus()
 
     def __changed_line_edit(self, text):
         if (text and text[-1] in digits):
-            self.__cash_num = int(text.replace(',', '') or 0)
+            self.__num = int(text.replace(',', '') or 0)
         else:
-            self.__cash_num = 0
-        self.line_edit.setText(f"{abs(self.__cash_num):,}")
+            self.__num = 0
+        self.line_edit.setText(f"{abs(self.__num)}")
         self.line_edit.setFocus()
 
     def closeEvent(self, event):
@@ -171,13 +139,13 @@ class CashDialog(QDialog):
         winsound.MessageBeep()
     
     @property
-    def cash_num(self):
-        return self.__cash_num or -1
+    def num(self):
+        return self.__num or -1
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    cash = CashDialog(200000)
+    cash = NumberDialog()
     status = cash.exec_() == QDialog.Accepted
     print(status)
     if status:
-        print(f"{cash.cash_num:,}")
+        print(f"{cash.num}")

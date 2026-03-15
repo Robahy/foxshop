@@ -1,4 +1,3 @@
-/* ===== کل استایل مشابه نسخه حرفه‌ای POS ===== */
 QWidget {
     background-color: #1e1e1e;
     color: #ffffff;
@@ -62,4 +61,13 @@ QPushButton#btn-panel {
     min-height: 38px;
     padding: 8px 12px;
     border-radius: 12px;
+}
+QLabel#status-title{
+    font-size: 20px;
+}
+QLabel#status-res{
+    font-size: 20px;
+}
+QLabel#status-balance{
+    font-size: 30px;
 }

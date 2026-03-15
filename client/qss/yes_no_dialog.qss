@@ -13,7 +13,7 @@ QLabel#lbl_warning{
 QPushButton{
     background:#2a2a2a;
     color:white;
-    border:none;
+    border:1px solid #555;
     border-radius:20px;
     padding: 30px 110px;
     font-size:40px;
@@ -21,4 +21,5 @@ QPushButton{
 }
 QPushButton:hover{
     background:#444;
+    border-color: #ff8c2a;
 }
