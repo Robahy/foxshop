@@ -10,7 +10,15 @@ class MyFactor():
         """
         Create A myFactor
         """
-        self.reset_factor(factor_id, personnel_id, customer_id, products, cash, card)
+        self.__myfactor = {}
+        self.reset_factor(
+            factor_id    = factor_id,
+            personnel_id = personnel_id,
+            customer_id  = customer_id,
+            products     = products,
+            cash         = cash,
+            card         = card
+        )
 
     def set_factor_id(self, factor_id: int) -> bool:
         """
@@ -151,9 +159,10 @@ class MyFactor():
         Set List Products
         """
         try:
+            self.__myfactor['products'] = []
             for product in products:
                 if not self.__is_product(product):
-                    continue
+                    raise RuntimeError
                 self.add_product(
                     product.get('barcode'),
                     product.get('pname'),
@@ -224,14 +233,14 @@ class MyFactor():
         """
         return self.total - sum(self.payment_amount)
 
-    def reset_factor(self,
-              factor_id: int     = -1,
-              personnel_id: int  = -1,
-              customer_id: int   = -1,
-              products: list     = [],
-              cash: int          = 0,
-              card: int          = 0
-                ):
+    def reset_factor(self,*,
+              factor_id: int,
+              personnel_id: int,
+              customer_id: int,
+              products: list,
+              cash: int,
+              card: int
+            ):
         """
         Reaset myFactor
         """

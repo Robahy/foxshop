@@ -1,0 +1,24 @@
+QDialog{
+    background:#0f0f0f;
+}
+QLabel#msg{
+    font-size: 44px;
+    color: white;
+    padding: 30px 70px 60px 70px;
+}
+QLabel#lbl_warning{
+    padding-top:90px;
+    padding-bottom:30px;
+}
+QPushButton{
+    background:#2a2a2a;
+    color:white;
+    border:none;
+    border-radius:20px;
+    padding: 30px 110px;
+    font-size:40px;
+    margin: 30px;
+}
+QPushButton:hover{
+    background:#444;
+}

@@ -16,8 +16,12 @@ class SelectShoperDialog(QDialog):
 
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setFixedSize(600, 600)
-        with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'select_shoper_dialog.qss'), 'r', encoding='utf-8') as f:
-            self.setStyleSheet(f.read())
+        
+        try:
+            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'select_shoper_dialog.qss'), 'r') as f:
+                self.setStyleSheet(f.read())
+        except:
+            pass
             
         
         main_layout = QVBoxLayout(self)

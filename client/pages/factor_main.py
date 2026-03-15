@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                              QTableWidgetItem, QAbstractItemView, QMessageBox, QInputDialog)
 from PyQt5.QtCore import Qt, QTime, QTimer
 from PyQt5.QtGui import QFont, QColor
-from dialogs.select_shoper_dialog import SelectShoperDialog
+from dialogs import SelectShoperDialog, YesNoDialog, CashDialog
 from database import get_product_by_barcode
 from my_factor import MyFactor
 import winsound
@@ -385,7 +385,6 @@ class FactorMain(QMainWindow):
 
     def __select_shoper(self) -> bool:
         try:
-            print('ok')
             self.__shoper = SelectShoperDialog()
             if self.__shoper.exec_() == QDialog.Accepted:
                 self.myfactor.set_personnel_id(self.__shoper.id)
@@ -416,7 +415,7 @@ class FactorMain(QMainWindow):
                 raise RuntimeError
         except Exception:
             return False
-        else:
+        finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
@@ -435,7 +434,7 @@ class FactorMain(QMainWindow):
         except Exception as e:
             print(e)
             return False
-        else:
+        finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
@@ -455,7 +454,7 @@ class FactorMain(QMainWindow):
                 raise RuntimeError
         except Exception:
             return False
-        else:
+        finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
@@ -463,15 +462,22 @@ class FactorMain(QMainWindow):
 
     def __remove_factor(self):
         try:
-            reply = QMessageBox.question(self, "Remove Factor", "Are you sure remove factor?", QMessageBox.Yes | QMessageBox.No)
-            if reply == QMessageBox.Yes:
-                if not self.myfactor.reset_factor():
+            yes_no = YesNoDialog("Are you sure remove factor?")
+            if yes_no.exec_() == QDialog.Accepted:
+                if not self.myfactor.reset_factor(
+                        factor_id    = -1,
+                        personnel_id = self.myfactor.personnel_id,
+                        customer_id  = -1,
+                        products     = [],
+                        cash         = 0,
+                        card         = 0
+                    ):
                     raise RuntimeError
             else:
                 raise RuntimeError
         except Exception:
             return False
-        else:
+        finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()

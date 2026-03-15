@@ -8,4 +8,4 @@ window = FactorMain()
 window.show()
 
 app.exec_() # Start Fox Pos
-print(window.myfactor)
+# print(window.myfactor)
