@@ -9,24 +9,23 @@ import sys, os, winsound
 
 
 class NumberDialog(QDialog):
-    def __init__(self):
+    def __init__(self, default_num: int):
         super().__init__()
         self.setWindowTitle('cash page')
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.__num = 0
+        self.__num = default_num
 
         self.__setup_ui()
-        self.showFullScreen()
-
-        self.line_edit.setFocus()
-
+        self.__signals()
         try:
             qss_path = os.path.join(self.__BASE_DIR, '..', 'qss', 'number_dialog.qss')
             with open(qss_path, 'r', encoding='utf-8') as f:
                 self.setStyleSheet(f.read())
         except Exception:
             pass
+        self.showFullScreen()
+        self.line_edit.setFocus()
 
     def __setup_ui(self):
         BUTTON_W, BUTTON_H = 100, 80
@@ -50,7 +49,7 @@ class NumberDialog(QDialog):
         left = QVBoxLayout()
 
         keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
-        self.line_edit = QLineEdit("0")
+        self.line_edit = QLineEdit(f"{self.__num}")
         self.line_edit.setFocusPolicy(Qt.StrongFocus)
         self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.line_edit.setFixedWidth(keypad_width)
@@ -91,23 +90,25 @@ class NumberDialog(QDialog):
         bottom = QHBoxLayout()
         bottom.addStretch()
 
-        confirm_btn = QPushButton("تأیید")
-        cancel_btn = QPushButton("لغو")
+        self.__confirm_btn = QPushButton("تأیید")
+        self.__cancel_btn = QPushButton("لغو")
 
-        confirm_btn.clicked.connect(self.accept)
-        cancel_btn.clicked.connect(self.reject)
+        self.__confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
+        self.__cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
 
-        confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
-        cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
-
-        bottom.addWidget(confirm_btn)
+        bottom.addWidget(self.__confirm_btn)
         bottom.addSpacing(30)
-        bottom.addWidget(cancel_btn)
+        bottom.addWidget(self.__cancel_btn)
         bottom.addStretch()
 
         outer.addLayout(bottom)
 
         self.setLayout(outer)
+
+    def __signals(self):
+        self.__confirm_btn.clicked.connect(self.accept)
+        self.__cancel_btn.clicked.connect(self.reject)
+
 
     def __num_pad_clicked(self, text):
         content = self.line_edit.text()

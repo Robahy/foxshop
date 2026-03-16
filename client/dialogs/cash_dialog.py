@@ -160,7 +160,9 @@ class CashDialog(QDialog):
 
     def __changed_line_edit(self, text):
         if (text and text[-1] in digits):
-            self.__cash_num = int(text.replace(',', '') or 0)
+            number = int(text.replace(',', '') or 0)
+            if number <= self.max:
+                self.__cash_num = number
         else:
             self.__cash_num = 0
         self.line_edit.setText(f"{abs(self.__cash_num):,}")
@@ -171,7 +173,7 @@ class CashDialog(QDialog):
         winsound.MessageBeep()
     
     @property
-    def cash_num(self):
+    def cash_num(self) -> int:
         return self.__cash_num or -1
 
 if __name__ == "__main__":

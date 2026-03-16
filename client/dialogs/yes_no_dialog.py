@@ -12,13 +12,18 @@ class YesNoDialog(QDialog):
         super().__init__()
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+        self.__setup_ui(message)
+        self.__signals()
+        
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'yes_no_dialog.qss'), 'r') as f:
                 self.setStyleSheet(f.read())
         except Exception:
             pass
 
+        self.showFullScreen()
+
+    def __setup_ui(self, msg):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
 
@@ -29,7 +34,7 @@ class YesNoDialog(QDialog):
         lbl_warning.setAlignment(Qt.AlignCenter)
         layout.addWidget(lbl_warning)
 
-        msg = QLabel(message)
+        msg = QLabel(msg)
         msg.setObjectName("msg")
         msg.setAlignment(Qt.AlignCenter)
         msg.setWordWrap(True)
@@ -39,19 +44,18 @@ class YesNoDialog(QDialog):
         btns.setAlignment(Qt.AlignCenter)
         btns.setSpacing(100)
 
-        ok_btn = QPushButton("تأیید")
-        cancel_btn = QPushButton("لغو")
+        self.__ok_btn = QPushButton("تأیید")
+        self.__cancel_btn = QPushButton("لغو")
 
-        ok_btn.clicked.connect(self.accept)
-        cancel_btn.clicked.connect(self.reject)
-
-        btns.addWidget(ok_btn)
-        btns.addWidget(cancel_btn)
+        btns.addWidget(self.__ok_btn)
+        btns.addWidget(self.__cancel_btn)
 
         layout.addLayout(btns)
-
         self.setLayout(layout)
-        self.showFullScreen()
+
+    def __signals(self):
+        self.__ok_btn.clicked.connect(self.accept)
+        self.__cancel_btn.clicked.connect(self.reject)
 
 
 if __name__ == "__main__":

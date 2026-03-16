@@ -194,7 +194,7 @@ class MyFactor():
                 total_discount += (price * product.get('discount')/100) * product.get('no')
         return int(total_discount)
 
-    def set_payment(self, cash_amount=0, card_amount=0):
+    def set_payment(self, *, cash_amount=0, card_amount=0):
         """
         Set Payment
         """
