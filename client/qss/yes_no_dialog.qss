@@ -10,16 +10,20 @@ QLabel#lbl_warning{
     padding-top:90px;
     padding-bottom:30px;
 }
-QPushButton{
-    background:#2a2a2a;
+QPushButton#return{
+    background: #3a3a3a;
     color:white;
     border:1px solid #555;
-    border-radius:20px;
-    padding: 30px 110px;
-    font-size:40px;
-    margin: 30px;
+    border-radius:12px;
+    font-size:24px;
+    min-width:200px;
+    padding: 20px;
 }
-QPushButton:hover{
-    background:#444;
+QPushButton#return:hover{
+    background: #4a4a4a;
+    border-color: #ff8c2a;
+}
+QPushButton#return:pressed{
+    background: #2a2a2a;
     border-color: #ff8c2a;
 }

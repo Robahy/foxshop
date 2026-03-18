@@ -4,7 +4,7 @@ QWidget {
     font-size: 14px;
     color: #dddddd;
 }
-QLabel {
+QLabel{
     background: transparent;
 }
 QTableWidget {
@@ -38,6 +38,9 @@ QLineEdit {
 QLineEdit:focus {
     border-color: #ff8c2a;
 }
+QFrame#right-panel{
+    padding: 8px;
+}
 QPushButton {
     background-color: #3a3a3a;
     border: 1px solid #555;
@@ -50,7 +53,7 @@ QPushButton:hover {
     border-color: #ff8c2a;
 }
 QPushButton:disabled {
-    background-color: #2a2a2a;
+    background-color: #141313;
     color: #777;
     border-color: #333;
 }

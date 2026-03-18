@@ -24,34 +24,37 @@ class YesNoDialog(QDialog):
         self.showFullScreen()
 
     def __setup_ui(self, msg):
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
+        main_layout = QVBoxLayout()
+        main_layout.setAlignment(Qt.AlignCenter)
 
         lbl_warning = QLabel()
         lbl_warning.setObjectName("lbl_warning")
         warning_icon = QPixmap(os.path.join(self.__BASE_DIR, '..', 'static', 'warning.png'))
         lbl_warning.setPixmap(warning_icon.scaled(360, 360, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         lbl_warning.setAlignment(Qt.AlignCenter)
-        layout.addWidget(lbl_warning)
 
         msg = QLabel(msg)
         msg.setObjectName("msg")
         msg.setAlignment(Qt.AlignCenter)
         msg.setWordWrap(True)
-        layout.addWidget(msg)
 
         btns = QHBoxLayout()
         btns.setAlignment(Qt.AlignCenter)
         btns.setSpacing(100)
 
         self.__ok_btn = QPushButton("تأیید")
+        self.__ok_btn.setObjectName('return')
         self.__cancel_btn = QPushButton("لغو")
+        self.__cancel_btn.setObjectName('return')
 
+        # Add btns
         btns.addWidget(self.__ok_btn)
         btns.addWidget(self.__cancel_btn)
-
-        layout.addLayout(btns)
-        self.setLayout(layout)
+        # Add 
+        main_layout.addWidget(msg)
+        main_layout.addWidget(lbl_warning)
+        main_layout.addLayout(btns)
+        self.setLayout(main_layout)
 
     def __signals(self):
         self.__ok_btn.clicked.connect(self.accept)

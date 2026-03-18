@@ -90,13 +90,12 @@ class NumberDialog(QDialog):
         bottom = QHBoxLayout()
         bottom.addStretch()
 
-        self.__confirm_btn = QPushButton("تأیید")
+        self.__ok_btn = QPushButton("تأیید")
+        self.__ok_btn.setObjectName('return')
         self.__cancel_btn = QPushButton("لغو")
+        self.__cancel_btn.setObjectName('return')
 
-        self.__confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
-        self.__cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
-
-        bottom.addWidget(self.__confirm_btn)
+        bottom.addWidget(self.__ok_btn)
         bottom.addSpacing(30)
         bottom.addWidget(self.__cancel_btn)
         bottom.addStretch()
@@ -106,7 +105,7 @@ class NumberDialog(QDialog):
         self.setLayout(outer)
 
     def __signals(self):
-        self.__confirm_btn.clicked.connect(self.accept)
+        self.__ok_btn.clicked.connect(self.accept)
         self.__cancel_btn.clicked.connect(self.reject)
 
 
@@ -145,7 +144,7 @@ class NumberDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    cash = NumberDialog()
+    cash = NumberDialog(10)
     status = cash.exec_() == QDialog.Accepted
     print(status)
     if status:
