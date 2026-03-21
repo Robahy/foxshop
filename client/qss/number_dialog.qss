@@ -2,7 +2,7 @@ QWidget{
     background:#1e1e1e;
     font-family:Tahoma;
 }
-QLablel#cashTitle {
+QLabel#cashTitle {
     font-size: 56px;
     font-weight: bold;
     color: white;

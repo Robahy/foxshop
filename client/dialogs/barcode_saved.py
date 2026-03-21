@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from .btn_yes_no_widget import BtnYesNo
 import sys, csv, os
 
 
@@ -56,28 +57,18 @@ class BarcodesDialog(QDialog):
                 self.__add_btn = QPushButton("➕\nافزودن بارکد")
                 grid_layout.addWidget(self.__add_btn, row+1, 1)
 
-        btn_layout = QHBoxLayout()
+        self.__btns = BtnYesNo(self)
 
-        self.__ok_btn = QPushButton("تایید")
-        self.__ok_btn.setObjectName('return')
-        self.__cancel_btn = QPushButton("لغو")
-        self.__cancel_btn.setObjectName('return')
-
-        # Add btn_layout
-        btn_layout.addStretch()
-        btn_layout.addWidget(self.__ok_btn)
-        btn_layout.addWidget(self.__cancel_btn)
-        btn_layout.addStretch()
         # Add main_layout
         main_layout.addWidget(title)
         main_layout.addStretch()
         main_layout.addWidget(grid_container)
         main_layout.addStretch()
-        main_layout.addLayout(btn_layout)
+        main_layout.addLayout(self.__btns)
 
     def __signals(self):
-            self.__cancel_btn.clicked.connect(self.reject)
-            self.__ok_btn.clicked.connect(self.accept)
+            self.__btns.cancel_btn.clicked.connect(self.reject)
+            self.__btns.ok_btn.clicked.connect(self.accept)
             self.__add_btn.clicked.connect(self.__add_barcode_saved_signal)
 
     def __barcode_btn_presed_signal(self):

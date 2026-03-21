@@ -1,11 +1,10 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from pages.factor_main import FactorMain
+from main_window import MainWindow
 
 app = QApplication(sys.argv)
 
-window = FactorMain()
+window = MainWindow()
 window.show()
 
-app.exec_() # Start Fox Pos
-# print(window.myfactor)
+sys.exit(app.exec_())

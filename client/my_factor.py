@@ -106,7 +106,7 @@ class MyFactor():
     def set_number_product(self, index: int, num: int) -> bool:
         """
         Set Number A Product (by index)\n
-        for add: number = (Negative)
+        for add: num = (Negative)
         """
         try:
             if self.is_removed_product(index):

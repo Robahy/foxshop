@@ -1,8 +1,8 @@
 import sys
 import os
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                              QTableWidget, QLineEdit, QLabel, QPushButton,
-                             QGridLayout, QFrame, QSizePolicy, QSpacerItem, QHeaderView, QDialog,
+                             QGridLayout, QFrame, QHeaderView, QDialog,
                              QTableWidgetItem, QAbstractItemView, QStackedWidget)
 from PyQt5.QtCore import Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
 from PyQt5.QtGui import QFont, QColor
@@ -111,8 +111,8 @@ class FactorTableWidget(QTableWidget):
             return False
         return True
 
-class FactorMain(QMainWindow):
-    def __init__(self,
+class FactorPage(QWidget):
+    def __init__(self, changer_page,
                 factor_id: int   = -1,
                 personnel_id:int = -1,
                 customer_id: int = -1,
@@ -123,6 +123,7 @@ class FactorMain(QMainWindow):
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.changer_page = changer_page
         self.__setup_ui()
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r', encoding='utf-8') as f:
@@ -143,8 +144,11 @@ class FactorMain(QMainWindow):
             self.__select_shoper_signal()
         
     def __setup_ui(self):
-        central_widget = QWidget()
-        main_layout = QVBoxLayout(central_widget)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        main_widget = QWidget()
+        root.addWidget(main_widget)
+        main_layout = QVBoxLayout(main_widget)
         main_layout.setSpacing(5)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -160,8 +164,6 @@ class FactorMain(QMainWindow):
         right_layout = QVBoxLayout(right_panel)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(6)
-
-        top_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         
         input_layout = QVBoxLayout()
         input_layout.setContentsMargins(0, 0, 0, 100)
@@ -228,8 +230,6 @@ class FactorMain(QMainWindow):
         self.__btn_view_payments.setObjectName('btn-panel')
         self.__btn_back_menu2 = QPushButton('بازگشت')
         self.__btn_back_menu2.setObjectName('btn-panel')
-
-        bottom_spacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
         # End control panel
 
         footer_layout = QVBoxLayout()
@@ -321,10 +321,10 @@ class FactorMain(QMainWindow):
         self.__panel_btn.addWidget(more_menu_widget)
         self.__panel_btn.addWidget(supervisor_operations_widget)
         # Add sid_layout
-        right_layout.addItem(top_spacer)
+        right_layout.addStretch()
         right_layout.addLayout(input_layout)
         right_layout.addWidget(self.__panel_btn)
-        right_layout.addItem(bottom_spacer)
+        right_layout.addStretch()
         # Add control_panel
         control_panel.addWidget(self.__table, 8)
         control_panel.addWidget(right_panel, 2)
@@ -375,7 +375,6 @@ class FactorMain(QMainWindow):
         main_layout.addLayout(control_panel)
         main_layout.addLayout(footer_layout)
         # End Add
-        self.setCentralWidget(central_widget)
 
     def __change_panel_btn(self, index):
         current = self.__panel_btn.currentWidget()
@@ -415,7 +414,7 @@ class FactorMain(QMainWindow):
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_more_option.clicked.connect(lambda: self.__change_panel_btn(1))
         self.__btn_supervisor_operations.clicked.connect(lambda: self.__change_panel_btn(2))
-        self.__btn_exit.clicked.connect(self.close)
+        self.__btn_exit.clicked.connect(lambda: self.window().close())
         self.__btn_payment.clicked.connect(self.__cash_payment_signal)
         self.__btn_cancel_payment.clicked.connect(self.__cash_payment_cancle_signal)
         self.__btn_set_num_product.clicked.connect(self.__set_number_item_signal)
@@ -428,7 +427,7 @@ class FactorMain(QMainWindow):
         self.__lbl_clock.setText(current_time)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_F2: 
+        if event.key() == Qt.Key_F2:
             print('F2')
         elif event.key() == Qt.Key_F5: # cash payment
             if self.myfactor.balance:
@@ -482,8 +481,8 @@ class FactorMain(QMainWindow):
         try:
             row = self.__table.currentRow()
             if row != -1 and not self.myfactor.is_removed_product(row):
-                number = NumberDialog(int(self.myfactor.products[row]['no']))
-                if number.exec_() == QDialog.Accepted:
+                number = NumberDialog()
+                if number.exec_() == QDialog.Accepted and number.num:
                     if not self.myfactor.set_number_product(row, number.num):
                         raise RuntimeError
             else:
@@ -546,7 +545,7 @@ class FactorMain(QMainWindow):
 
     def __remove_factor_signal(self):
         try:
-            yes_no = YesNoDialog('آیا میخواهید فاکتور حذف شود؟')
+            yes_no = YesNoDialog('آیا میخواهید فاکتور ابطال شود؟')
             if yes_no.exec_() == QDialog.Accepted:
                 if not self.myfactor.reset_factor(
                         factor_id    = -1,
@@ -589,12 +588,12 @@ class FactorMain(QMainWindow):
         self.__btn_cancel_factor.setDisabled(not self.__table.rowCount())
         self.__btn_payment.setDisabled(not self.myfactor.balance)
         self.__btn_cancel_payment.setDisabled(not sum(self.myfactor.payment_amount))
-
+        
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    window = FactorMain()
+    window = FactorPage()
     window.show()
 
     sys.exit(app.exec_())

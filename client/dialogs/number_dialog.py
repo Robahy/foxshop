@@ -4,17 +4,18 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
+from .btn_yes_no_widget import BtnYesNo
 from string import digits
 import sys, os, winsound
 
 
 class NumberDialog(QDialog):
-    def __init__(self, default_num: int):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle('cash page')
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.__num = default_num
+        self.__num = 0
 
         self.__setup_ui()
         self.__signals()
@@ -29,18 +30,16 @@ class NumberDialog(QDialog):
 
     def __setup_ui(self):
         BUTTON_W, BUTTON_H = 100, 80
-        SIDE_BTN_W, SIDE_BTN_H = 160, 80
-        BOTTOM_BTN_W, BOTTOM_BTN_H = 200, 80
         GRID_SPACING = 12
 
-        outer = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
         title = QLabel("تعداد")
         title.setObjectName("cashTitle")
         title.setAlignment(Qt.AlignCenter)
-        outer.addWidget(title)
+        main_layout.addWidget(title)
 
-        outer.addSpacing(30)
+        main_layout.addSpacing(30)
 
         middle_h = QHBoxLayout()
         middle_h.addStretch()
@@ -83,31 +82,19 @@ class NumberDialog(QDialog):
         middle_h.addLayout(center)
         middle_h.addStretch()
 
-        outer.addStretch()
-        outer.addLayout(middle_h)
-        outer.addStretch()
+        main_layout.addStretch()
+        main_layout.addLayout(middle_h)
+        main_layout.addStretch()
 
-        bottom = QHBoxLayout()
-        bottom.addStretch()
+        self.__btns = BtnYesNo()
 
-        self.__ok_btn = QPushButton("تأیید")
-        self.__ok_btn.setObjectName('return')
-        self.__cancel_btn = QPushButton("لغو")
-        self.__cancel_btn.setObjectName('return')
+        main_layout.addWidget(self.__btns)
 
-        bottom.addWidget(self.__ok_btn)
-        bottom.addSpacing(30)
-        bottom.addWidget(self.__cancel_btn)
-        bottom.addStretch()
-
-        outer.addLayout(bottom)
-
-        self.setLayout(outer)
+        self.setLayout(main_layout)
 
     def __signals(self):
-        self.__ok_btn.clicked.connect(self.accept)
-        self.__cancel_btn.clicked.connect(self.reject)
-
+        self.__btns.ok_btn.clicked.connect(self.accept)
+        self.__btns.cancel_btn.clicked.connect(self.reject)
 
     def __num_pad_clicked(self, text):
         content = self.line_edit.text()
@@ -140,7 +127,7 @@ class NumberDialog(QDialog):
     
     @property
     def num(self):
-        return self.__num or -1
+        return self.__num
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

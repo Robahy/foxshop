@@ -20,13 +20,17 @@ QLineEdit:focus {
     border-color: #ff8c2a;
 }
 QPushButton{
-    background:#3a3a3a;
+    background: #3a3a3a;
     color:white;
     border:1px solid #555;
     border-radius:12px;
     font-size:24px;
 }
-QPushButton:hover {
-    background-color: #4a4a4a;
+QPushButton:hover{
+    background: #4a4a4a;
+    border-color: #ff8c2a;
+}
+QPushButton:pressed{
+    background: #2a2a2a;
     border-color: #ff8c2a;
 }

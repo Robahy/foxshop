@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIntValidator
 from PyQt5.QtCore import Qt
+from .btn_yes_no_widget import BtnYesNo
 from string import digits
 import sys, os, winsound
 
@@ -18,10 +19,7 @@ class CashDialog(QDialog):
         self.__cash_num = self.max
 
         self.__setup_ui()
-        self.showFullScreen()
-
-        self.line_edit.setFocus()
-
+        self.__signals()
         try:
             qss_path = os.path.join(self.__BASE_DIR, '..', 'qss', 'cash_dialog.qss')
             with open(qss_path, 'r', encoding='utf-8') as f:
@@ -29,20 +27,22 @@ class CashDialog(QDialog):
         except Exception:
             pass
 
+        self.showFullScreen()
+        self.line_edit.setFocus()
+
     def __setup_ui(self):
         BUTTON_W, BUTTON_H = 100, 80
         SIDE_BTN_W, SIDE_BTN_H = 160, 80
-        BOTTOM_BTN_W, BOTTOM_BTN_H = 200, 80
         GRID_SPACING = 12
 
-        outer = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
         title = QLabel("پرداخت نقدی")
         title.setObjectName("cashTitle")
         title.setAlignment(Qt.AlignCenter)
-        outer.addWidget(title)
 
-        outer.addSpacing(30)
+        main_layout.addWidget(title)
+        main_layout.addSpacing(30)
 
         middle_h = QHBoxLayout()
         middle_h.addStretch()
@@ -51,7 +51,7 @@ class CashDialog(QDialog):
         left = QVBoxLayout()
 
         keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
-        self.line_edit = QLineEdit(f"{self.max:,}")
+        self.line_edit = QLineEdit("0")
         self.line_edit.setFocusPolicy(Qt.StrongFocus)
         self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.line_edit.setFixedWidth(keypad_width)
@@ -78,20 +78,17 @@ class CashDialog(QDialog):
 
         right = QVBoxLayout()
 
-        btn_fix = QPushButton(f"{self.max:,}")
-        btn_fix.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_fix.clicked.connect(self.accept)
-        right.addWidget(btn_fix)
+        self.__btn_fix = QPushButton(f"{self.max:,}")
+        self.__btn_fix.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        right.addWidget(self.__btn_fix)
 
-        btn_50 = QPushButton("50,000")
-        btn_50.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_50.clicked.connect(self.__add_50)
-        right.addWidget(btn_50)
+        self.__btn_50 = QPushButton("50,000")
+        self.__btn_50.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        right.addWidget(self.__btn_50)
 
-        btn_10 = QPushButton("10,000")
-        btn_10.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
-        btn_10.clicked.connect(self.__add_10)
-        right.addWidget(btn_10)
+        self.__btn_10 = QPushButton("10,000")
+        self.__btn_10.setFixedSize(SIDE_BTN_W, SIDE_BTN_H)
+        right.addWidget(self.__btn_10)
 
         center.addLayout(left)
         center.addSpacing(30)
@@ -100,30 +97,23 @@ class CashDialog(QDialog):
         middle_h.addLayout(center)
         middle_h.addStretch()
 
-        outer.addStretch()
-        outer.addLayout(middle_h)
-        outer.addStretch()
+        main_layout.addStretch()
+        main_layout.addLayout(middle_h)
+        main_layout.addStretch()
 
-        bottom = QHBoxLayout()
-        bottom.addStretch()
+        self.__btns = BtnYesNo()
 
-        confirm_btn = QPushButton("تأیید")
-        cancel_btn = QPushButton("لغو")
+        main_layout.addWidget(self.__btns)
 
-        confirm_btn.clicked.connect(self.__down)
-        cancel_btn.clicked.connect(self.reject)
+        self.setLayout(main_layout)
 
-        confirm_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
-        cancel_btn.setFixedSize(BOTTOM_BTN_W, BOTTOM_BTN_H)
+    def __signals(self):
+        self.__btn_fix.clicked.connect(self.accept)
+        self.__btn_50.clicked.connect(self.__add_50)
+        self.__btn_10.clicked.connect(self.__add_10)
+        self.__btns.ok_btn.clicked.connect(self.__down)
+        self.__btns.cancel_btn.clicked.connect(self.reject)
 
-        bottom.addWidget(confirm_btn)
-        bottom.addSpacing(30)
-        bottom.addWidget(cancel_btn)
-        bottom.addStretch()
-
-        outer.addLayout(bottom)
-
-        self.setLayout(outer)
 
     def __add_50(self):
         self.__cash_num = 50000
@@ -174,10 +164,9 @@ class CashDialog(QDialog):
     
     @property
     def cash_num(self) -> int:
-        return self.__cash_num or -1
+        return self.__cash_num
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
     cash = CashDialog(200000)
     status = cash.exec_() == QDialog.Accepted
     print(status)

@@ -41,28 +41,27 @@ QLineEdit:focus {
 QFrame#right-panel{
     padding: 8px;
 }
-QPushButton {
-    background-color: #3a3a3a;
+QPushButton#btn-panel{
+    background: #3a3a3a;
     border: 1px solid #555;
-    border-radius: 14px;
-    padding: 12px;
-    font-size: 18px;
+    color:white;
+    border-radius: 12px;
+    font-size: 17px;
+    padding: 8px 12px;
+    min-height: 38px;
 }
-QPushButton:hover {
+QPushButton#btn-panel:pressed{
+    background: #2a2a2a;
+    border-color: #ff8c2a;
+}
+QPushButton#btn-panel:hover {
     background-color: #4a4a4a;
     border-color: #ff8c2a;
 }
-QPushButton:disabled {
+QPushButton#btn-panel:disabled {
     background-color: #141313;
     color: #777;
     border-color: #333;
-}
-QPushButton#btn-panel {
-    background-color: #333333;
-    font-size: 17px;
-    min-height: 38px;
-    padding: 8px 12px;
-    border-radius: 12px;
 }
 QLabel#status-title{
     font-size: 20px;

@@ -4,13 +4,14 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-import sys, os
+from .btn_yes_no_widget import BtnYesNo
+import os
 
 
 class YesNoDialog(QDialog):
     def __init__(self, message: str):
         super().__init__()
-
+        
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.__setup_ui(message)
         self.__signals()
@@ -33,35 +34,24 @@ class YesNoDialog(QDialog):
         lbl_warning.setPixmap(warning_icon.scaled(360, 360, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         lbl_warning.setAlignment(Qt.AlignCenter)
 
-        msg = QLabel(msg)
-        msg.setObjectName("msg")
-        msg.setAlignment(Qt.AlignCenter)
-        msg.setWordWrap(True)
+        lbl_msg = QLabel(msg)
+        lbl_msg.setObjectName("msg")
+        lbl_msg.setAlignment(Qt.AlignCenter)
 
-        btns = QHBoxLayout()
-        btns.setAlignment(Qt.AlignCenter)
-        btns.setSpacing(100)
-
-        self.__ok_btn = QPushButton("تأیید")
-        self.__ok_btn.setObjectName('return')
-        self.__cancel_btn = QPushButton("لغو")
-        self.__cancel_btn.setObjectName('return')
-
-        # Add btns
-        btns.addWidget(self.__ok_btn)
-        btns.addWidget(self.__cancel_btn)
-        # Add 
-        main_layout.addWidget(msg)
+        self.__btns = BtnYesNo(yes_msg='بله', no_msg='خیر')
+        
+        # Add Total
         main_layout.addWidget(lbl_warning)
-        main_layout.addLayout(btns)
+        main_layout.addWidget(lbl_msg)
+        main_layout.addWidget(self.__btns)
         self.setLayout(main_layout)
 
     def __signals(self):
-        self.__ok_btn.clicked.connect(self.accept)
-        self.__cancel_btn.clicked.connect(self.reject)
+        self.__btns.ok_btn.clicked.connect(self.accept)
+        self.__btns.cancel_btn.clicked.connect(self.reject)
 
 
+    
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
     yes_no_dialog = YesNoDialog("Are you ok?")
     print(yes_no_dialog.exec_() == QDialog.Accepted)
