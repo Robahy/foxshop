@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
         # Pages
         factor_page = FactorPage(self.changer_page) # Page 1
 
+
         # Add Pages
         self.changer_page.addWidget(factor_page)
 

@@ -1,5 +1,3 @@
-import sys
-import os
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
                              QTableWidget, QLineEdit, QLabel, QPushButton,
                              QGridLayout, QFrame, QHeaderView, QDialog,
@@ -9,7 +7,7 @@ from PyQt5.QtGui import QFont, QColor
 from dialogs import SelectShoperDialog, YesNoDialog, NumberDialog, CashDialog
 from database import get_product_by_barcode
 from my_factor import MyFactor
-import winsound
+import sys, os,  winsound
 
 class FactorTableWidget(QTableWidget):
     def __init__(self, my_factor: MyFactor):
@@ -126,14 +124,14 @@ class FactorPage(QWidget):
         self.changer_page = changer_page
         self.__setup_ui()
         try:
-            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r', encoding='utf-8') as f:
+            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r') as f:
                 style = f.read()
                 self.setStyleSheet(style)
         except:
             pass
 
         timer = QTimer(self)
-        timer.timeout.connect(self.__update_clock)
+        timer.timeout.connect(self.__updater)
         timer.start(1000)
 
         self.__signals()
@@ -409,6 +407,7 @@ class FactorPage(QWidget):
 
     def __signals(self):
         self.__table.itemClicked.connect(self.__check_btn_disabled)
+        
         self.__line_edit_barcode.returnPressed.connect(self.__return_peresed_line_edit_signal)
         self.__btn_back_menu1.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))
@@ -422,7 +421,7 @@ class FactorPage(QWidget):
         self.__btn_cancel_factor.clicked.connect(self.__remove_factor_signal)
         self.__btn_change_shoper.clicked.connect(self.__select_shoper_signal)
 
-    def __update_clock(self):
+    def __updater(self):
         current_time = QTime.currentTime().toString('HH:mm:ss')
         self.__lbl_clock.setText(current_time)
 
