@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
+from database import ServerManager
 from pages.factor_page import FactorPage
+from pages.main_page import MainPage
 import sys
 
 class MainWindow(QMainWindow):
@@ -7,17 +9,21 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.changer_page = QStackedWidget()
-        self.showFullScreen()
+        self.changer_page.setStyleSheet("background: #1e1e1e")
+
+        self.fastapi = ServerManager()
         
         # Pages
+        main_page   = MainPage(self.changer_page, self.fastapi) # Page 0
         factor_page = FactorPage(self.changer_page) # Page 1
 
-
         # Add Pages
+        self.changer_page.addWidget(main_page)
         self.changer_page.addWidget(factor_page)
 
 
         self.setCentralWidget(self.changer_page)
+        self.showFullScreen()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

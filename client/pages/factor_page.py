@@ -117,7 +117,7 @@ class FactorPage(QWidget):
                 products: list   = []
         ):
         super().__init__()
-        self.setWindowTitle('Fox Shoper')
+        
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -137,9 +137,9 @@ class FactorPage(QWidget):
         self.__signals()
         self.__check_btn_disabled()
 
-        self.showFullScreen()
         if personnel_id == -1:
             self.__select_shoper_signal()
+        self.showFullScreen()
         
     def __setup_ui(self):
         root = QVBoxLayout(self)

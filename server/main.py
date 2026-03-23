@@ -8,9 +8,9 @@ from fastapi import FastAPI
 app = FastAPI(
               title="Fox FastAPI",
               description="This Fast-api for FOX-SHOP",
-              # version='1.0.0',
-            #   docs_url=False,
-            #   redoc_url=False
+              version='1.0.0',
+              # docs_url=False,
+              # redoc_url=False
               )
 
 @app.get('/')
