@@ -116,6 +116,8 @@ class FactorPage(QWidget):
                 products: list   = []
         ):
         super().__init__()
+
+        self.setWindowTitle("Factor Manager")
         
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
@@ -407,7 +409,6 @@ class FactorPage(QWidget):
 
     def __signals(self):
         self.__table.itemClicked.connect(self.__check_btn_disabled)
-        
         self.__line_edit_barcode.returnPressed.connect(self.__return_peresed_line_edit_signal)
         self.__btn_back_menu1.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))

@@ -9,11 +9,11 @@ import sys, os, threading
 
 
 class MainPage(QWidget):
-    def __init__(self, changer_page, fastapi):
+    def __init__(self, changer_page, foxapi):
         super().__init__()
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.__changer_page = changer_page
-        self.__fastapi = fastapi
+        self.__foxapi = foxapi
         self.__setup_ui()
         self.__signals()
         try:
@@ -86,8 +86,9 @@ class MainPage(QWidget):
         root.addWidget(panel, 2)
 
     def __signals(self):
-        self.__btn_start_shop.clicked.connect(self.__start_shop_signal)
+        self.__btn_start_shop.clicked.connect(lambda: self.__changer_page.setCurrentIndex(1))
         self.__btn_config_server.clicked.connect(self.__config_server_sinal)
+        self.__btn_product_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(2))
         self.__btn_exit.clicked.connect(lambda: self.window().close())
 
     def keyPressEvent(self, event):
@@ -95,14 +96,10 @@ class MainPage(QWidget):
             self.__btn_start_shop.setDisabled(True)
             self.__set_blink_btn_light_server(False)
             self.__terminal_text.clear()
-            self.__terminal_text.setText("okkk")
         super().keyPressEvent(event)
 
-    def __start_shop_signal(self):
-        self.__changer_page.setCurrentIndex(1)
-
     def __config_server_sinal(self):
-        config_server_dialg = ConfigServerDialog(self.__fastapi)
+        config_server_dialg = ConfigServerDialog(self.__foxapi)
         if config_server_dialg.exec_() == QDialog.Accepted:
             self.__btn_start_shop.setDisabled(False)
             self.__set_blink_btn_light_server(True)
@@ -128,7 +125,7 @@ class MainPage(QWidget):
         self.__visible = not self.__visible
 
     def __write_terminal(self):
-        for line in iter(self.__fastapi.process.stdout.readline, ''):
+        for line in iter(self.__foxapi.process.stdout.readline, ''):
                 self.__terminal_text.setText(f'{self.__terminal_text.text()}\n{line}')
 
 if __name__ == "__main__":
