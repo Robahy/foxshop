@@ -4,15 +4,14 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QListWidget,
                             QLabel, QFrame, QLineEdit)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-from database import get_shoper, verify_cashier
 import winsound
 
 class SelectShoperDialog(QDialog):
-
-    def __init__(self):
+    def __init__(self, fastapi):
         super().__init__()
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.fastapi = fastapi
 
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setFixedSize(600, 600)
@@ -45,7 +44,7 @@ class SelectShoperDialog(QDialog):
         self.__vendor_list = QListWidget()
         self.__vendor_list.setFont(QFont("Tahoma", 13))
         
-        self.shopers = get_shoper()
+        self.shopers = self.fastapi.get_shoper()
         self.__vendor_list.addItems(self.shopers)
         
         list_layout.addWidget(self.__vendor_list)
@@ -66,7 +65,7 @@ class SelectShoperDialog(QDialog):
     def check_password(self):
         row      = self.__vendor_list.currentRow()
         password = self.__password_edit.text()
-        if row != -1 and password and verify_cashier(row, password):
+        if row != -1 and password and self.fastapi.verify_cashier(row, password):
             self.accept_selection()
         else:
             winsound.MessageBeep()

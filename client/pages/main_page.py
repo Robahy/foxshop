@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
 from dialogs.config_server_dialog import ConfigServerDialog
-import sys, os
+import sys, os, threading
 
 
 class MainPage(QWidget):
@@ -49,8 +49,13 @@ class MainPage(QWidget):
             )
         )
 
+        self.__terminal_text = QLabel()
+        self.__terminal_text.setStyleSheet('max-height: 200px;')
+        self.__terminal_text.setAlignment(Qt.AlignLeft)
+
         image_layout.addStretch()
         image_layout.addWidget(image)
+        image_layout.addWidget(self.__terminal_text)
         image_layout.addStretch()
 
         # -------- پنل دکمه‌ها --------
@@ -81,17 +86,31 @@ class MainPage(QWidget):
         root.addWidget(panel, 2)
 
     def __signals(self):
-        self.__btn_config_server.clicked.connect(self.__btn_config_server_sinal)
+        self.__btn_start_shop.clicked.connect(self.__start_shop_signal)
+        self.__btn_config_server.clicked.connect(self.__config_server_sinal)
         self.__btn_exit.clicked.connect(lambda: self.window().close())
 
-    def __btn_config_server_sinal(self):
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier:
+            self.__btn_start_shop.setDisabled(True)
+            self.__set_blink_btn_light_server(False)
+            self.__terminal_text.clear()
+            self.__terminal_text.setText("okkk")
+        super().keyPressEvent(event)
+
+    def __start_shop_signal(self):
+        self.__changer_page.setCurrentIndex(1)
+
+    def __config_server_sinal(self):
         config_server_dialg = ConfigServerDialog(self.__fastapi)
         if config_server_dialg.exec_() == QDialog.Accepted:
             self.__btn_start_shop.setDisabled(False)
             self.__set_blink_btn_light_server(True)
+            threading.Thread(target=self.__write_terminal, daemon=True).start()
         else:
             self.__btn_start_shop.setDisabled(True)
             self.__set_blink_btn_light_server(False)
+            self.__terminal_text.clear()
 
     def __set_blink_btn_light_server(self,  is_light: bool | None=True):
         if is_light:
@@ -107,6 +126,10 @@ class MainPage(QWidget):
         else:
             self.__circle_green.setStyleSheet("background-color: green; border-radius:6px;")
         self.__visible = not self.__visible
+
+    def __write_terminal(self):
+        for line in iter(self.__fastapi.process.stdout.readline, ''):
+                self.__terminal_text.setText(f'{self.__terminal_text.text()}\n{line}')
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

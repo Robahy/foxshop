@@ -8,23 +8,34 @@ class ServerManager:
     def start(self):
         if self.process is None:
             self.process = subprocess.Popen(
-                ["python", "-m", "fastapi", "dev", self.app_path],
+                [
+                    "python",
+                    "-u",
+                    "-m",
+                    "uvicorn",
+                    "main:app",
+                    "--app-dir",
+                    os.path.dirname(self.app_path)
+                ],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
             )
 
     def stop(self):
         if self.process is not None:
-            self.process.terminate()
+            self.process.kill()
+            self.process.wait()
             self.process = None
 
     def is_running(self):
         return self.process is not None
 
-    def get_shoper():
+    def get_shoper(self):
         return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]
 
-    def get_product_by_barcode(barcode):
+    def get_product_by_barcode(self, barcode):
         return {
             'barcode'  : barcode,
             'pname'    : 'name product',
@@ -33,8 +44,5 @@ class ServerManager:
             'no'       : 100
         }
 
-    def verify_cashier(cashier_id, password) -> bool:
-        return password == '1111'
-
-        p = get_product_by_barcode('hi')
-        print(list(p.values()))
+    def verify_cashier(self, cashier_id, password) -> bool:
+        return True

@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
 from PyQt5.QtGui import QFont, QColor
 from dialogs import SelectShoperDialog, YesNoDialog, NumberDialog, CashDialog
-from database import get_product_by_barcode
 from my_factor import MyFactor
 import sys, os,  winsound
 
@@ -110,7 +109,7 @@ class FactorTableWidget(QTableWidget):
         return True
 
 class FactorPage(QWidget):
-    def __init__(self, changer_page,
+    def __init__(self, changer_page, fastapi,
                 factor_id: int   = -1,
                 personnel_id:int = -1,
                 customer_id: int = -1,
@@ -121,7 +120,8 @@ class FactorPage(QWidget):
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.changer_page = changer_page
+        self.__changer_page = changer_page
+        self.__fastapi = fastapi
         self.__setup_ui()
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r') as f:
@@ -413,7 +413,7 @@ class FactorPage(QWidget):
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_more_option.clicked.connect(lambda: self.__change_panel_btn(1))
         self.__btn_supervisor_operations.clicked.connect(lambda: self.__change_panel_btn(2))
-        self.__btn_exit.clicked.connect(lambda: self.window().close())
+        self.__btn_exit.clicked.connect(self.__back_to_main_page_signal)
         self.__btn_payment.clicked.connect(self.__cash_payment_signal)
         self.__btn_cancel_payment.clicked.connect(self.__cash_payment_cancle_signal)
         self.__btn_set_num_product.clicked.connect(self.__set_number_item_signal)
@@ -440,7 +440,7 @@ class FactorPage(QWidget):
 
     def __select_shoper_signal(self) -> bool:
         try:
-            self.__shoper = SelectShoperDialog()
+            self.__shoper = SelectShoperDialog(self.__fastapi)
             if self.__shoper.exec_() == QDialog.Accepted:
                 self.myfactor.set_personnel_id(self.__shoper.id)
                 self.__nameShoperLable.setText(f'Shoper: {self.__shoper.name}')
@@ -458,7 +458,7 @@ class FactorPage(QWidget):
 
     def __add_item_by_barcode(self, barcode) -> bool:
         try:
-            product = get_product_by_barcode(barcode)
+            product = self.__fastapi.get_product_by_barcode(barcode)
             if product:
                 self.myfactor.add_product(
                     product.get('barcode'),
@@ -588,7 +588,9 @@ class FactorPage(QWidget):
         self.__btn_payment.setDisabled(not self.myfactor.balance)
         self.__btn_cancel_payment.setDisabled(not sum(self.myfactor.payment_amount))
         
-    
+    def __back_to_main_page_signal(self):
+        self.__changer_page.setCurrentIndex(0)
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 

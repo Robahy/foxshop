@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         
         # Pages
         main_page   = MainPage(self.changer_page, self.fastapi) # Page 0
-        factor_page = FactorPage(self.changer_page) # Page 1
+        factor_page = FactorPage(self.changer_page, self.fastapi) # Page 1
 
         # Add Pages
         self.changer_page.addWidget(main_page)
