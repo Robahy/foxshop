@@ -536,12 +536,11 @@ class FactorPage(QWidget):
             else:
                 raise RuntimeError
         except Exception:
-            return False
+            pass
         finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
-        return True
 
     def __remove_factor_signal(self):
         try:
@@ -559,12 +558,11 @@ class FactorPage(QWidget):
             else:
                 raise RuntimeError
         except Exception:
-            return False
+            pass
         finally:
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
-        return True
 
     # set status
     def __reload_status(self):

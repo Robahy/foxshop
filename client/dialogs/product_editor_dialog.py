@@ -1,81 +1,162 @@
 from PyQt5.QtWidgets import (
-    QHBoxLayout,QPushButton, QDialog,
-    QLineEdit, QSpinBox, QDoubleSpinBox, QFormLayout
+    QDialog, QLabel, QLineEdit, QPushButton,
+    QVBoxLayout, QGridLayout, QHBoxLayout, QApplication
 )
+from PyQt5.QtCore import Qt
+from string import digits
+import sys, os
 
-class ProductEditDialog(QDialog):
-    # سیگنالی که داده‌های ویرایش شده رو برمی‌گردونه
-    product_saved = pyqtSignal(dict)
 
-    def __init__(self, product_data=None, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("ویرایش کالا" if product_data else "افزودن کالا")
-        self.setMinimumWidth(400)
-        self.setModal(True) # مودال باشه که مزاحم صفحه اصلی نشه
+class ProductEditorDialog(QDialog):
+    def __init__(self,
+                pname   : str = '',
+                price   : int = 0,
+                off     : int = 0,
+                no      : int = 0,
+                barcode : str = '',
+                is_edit : bool = False ):
+        super().__init__()
 
-        self.product_data = product_data # اگر ویرایش باشه، داده‌های فعلی کالا
-        self.is_editing = product_data is not None
+        self.setWindowTitle("Editor Product")
+        self.setFixedSize(450, 360)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
 
-        self.layout = QFormLayout(self)
+        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.pname   = pname
+        self.price   = price
+        self.off     = off
+        self.no      = no
+        self.barcode = barcode
+        self.is_edit = is_edit
+        self.__setup_ui()
+        self.__signals()
+        self.__check_accept_disabled()
 
-        # فیلدها
-        self.name_input = QLineEdit()
-        self.price_input = QDoubleSpinBox()
-        self.price_input.setDecimals(2)
-        self.price_input.setRange(0.00, 1000000000.00) # محدوده قیمت
-        self.discount_input = QDoubleSpinBox()
-        self.discount_input.setDecimals(2)
-        self.discount_input.setRange(0.00, 100.00) # درصد تخفیف
-        self.quantity_input = QSpinBox()
-        self.quantity_input.setRange(0, 1000000) # محدوده تعداد
-        self.barcode_input = QLineEdit()
+        try:
+            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'product_editro_dialog.qss'), 'r') as f:
+                self.setStyleSheet(f.read())
+        except Exception:
+            pass
 
-        self.layout.addRow("نام کالا:", self.name_input)
-        self.layout.addRow("قیمت کالا:", self.price_input)
-        self.layout.addRow("تخفیف (%):", self.discount_input)
-        self.layout.addRow("تعداد:", self.quantity_input)
-        self.layout.addRow("بارکد:", self.barcode_input)
+    def __setup_ui(self):
 
-        # دکمه‌های Save/Cancel
-        self.save_button = QPushButton("ذخیره")
-        self.cancel_button = QPushButton("لغو")
-        self.button_layout = QHBoxLayout()
-        self.button_layout.addWidget(self.save_button)
-        self.button_layout.addWidget(self.cancel_button)
-        self.layout.addRow(self.button_layout)
+        title = QLabel("ویرایشگر کالا")
+        title.setAlignment(Qt.AlignCenter)
 
-        # اتصال سیگنال‌ها
-        self.save_button.clicked.connect(self.save_product)
-        self.cancel_button.clicked.connect(self.reject) # reject دیالوگ را می‌بندد
+        grid = QGridLayout()
 
-        # اگر در حالت ویرایش هستیم، فیلدها را پر کن
-        if self.is_editing:
-            self.name_input.setText(product_data.get('نام کالا', ''))
-            self.price_input.setValue(float(product_data.get('قیمت کالا', 0.0)))
-            self.discount_input.setValue(float(product_data.get('تخفیف', 0.0)))
-            self.quantity_input.setValue(int(product_data.get('تعداد', 0)))
-            self.barcode_input.setText(product_data.get('بارکد', ''))
+        self.name_edit = QLineEdit(self.pname)
+        self.price_edit = QLineEdit(f"{self.price:,}")
+        self.off_edit = QLineEdit(f"{self.off}")
+        self.no_edit = QLineEdit(f"{self.no:,}")
+        self.barcode_edit = QLineEdit(f"{self.barcode}")
+        self.barcode_edit.setReadOnly(self.is_edit)
 
-    def save_product(self):
-        if not self.name_input.text():
-            # اینجا می‌تونی یک پیغام خطا نشون بدی
-            print("نام کالا نمی‌تواند خالی باشد.")
-            return
+        grid.addWidget(QLabel("اسم کالا"), 0, 0)
+        grid.addWidget(self.name_edit, 0, 1)
 
-        # جمع‌آوری داده‌ها
-        product_info = {
-            "نام کالا": self.name_input.text(),
-            "قیمت کالا": str(self.price_input.value()),
-            "تخفیف": str(self.discount_input.value()),
-            "تعداد": str(self.quantity_input.value()),
-            "بارکد": self.barcode_input.text()
-        }
-        # اگر در حالت ویرایش هستیم، شماره سطر را هم اضافه می‌کنیم (که از داده‌های اصلی گرفته شده)
-        if self.is_editing and 'شماره سطر' in self.product_data:
-            product_info['شماره سطر'] = self.product_data['شماره سطر']
+        grid.addWidget(QLabel("قیمت کالا"), 1, 0)
+        grid.addWidget(self.price_edit, 1, 1)
+
+        grid.addWidget(QLabel("تخفیف (%)"), 2, 0)
+        grid.addWidget(self.off_edit, 2, 1)
+
+        grid.addWidget(QLabel("موجودی"), 3, 0)
+        grid.addWidget(self.no_edit, 3, 1)
+
+        grid.addWidget(QLabel("بارکد کالا"), 4, 0)
+        grid.addWidget(self.barcode_edit, 4, 1)
+
+        self.cancel_btn      = QPushButton("لغو")
+        self.save_change_btn = QPushButton("ذخیره تغییرات")
+
+
+        btn_layout = QHBoxLayout()
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.cancel_btn)
+        btn_layout.addWidget(self.save_change_btn)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(title)
+        layout.addLayout(grid)
+        layout.addLayout(btn_layout)
+
+    def __signals(self):
+        self.price_edit.textChanged.connect(lambda text: self.__changed_line_edit(self.price_edit, text))
+        self.off_edit.textChanged.connect(self.__changed_off_edit)
+        self.no_edit.textChanged.connect(lambda text: self.__changed_line_edit(self.no_edit, text))
+        self.barcode_edit.textChanged.connect(self.__changed_barcode_edit)
+        self.accepted.connect(self.__on_accept)
+        self.cancel_btn.clicked.connect(self.reject)
+        self.save_change_btn.clicked.connect(self.accept)
+    
+    def __changed_line_edit(self, line_edit, text):
+        text = text.replace(',', '') or '0'
+        if text:
+            if text[-1] in digits:
+                echo = int(text)
+            else:
+                echo = int(text[:-1] or 0)
         else:
-            # برای کالای جدید، شماره سطر رو فعلا خالی می‌ذاریم، بعداً در تیبل تنظیم میشه
-            product_info['شماره سطر'] = ''
+            echo = 0
+        line_edit.setText(f"{abs(echo):,}")
+        line_edit.setFocus()
+        self.__check_accept_disabled()
 
-        self.product_saved.emit(product_info) # ارسال داده‌ها با سیگنال
-        self.accept() # بستن دیالوگ با نتیجه موفق
+    def __changed_off_edit(self, text):
+        text = text or '0'
+        if text:
+            if text[-1] in digits:
+                if int(text) <= 100:
+                    echo = int(text)
+                else:
+                    echo = int(text[:-1] or 0)
+            else:
+                echo = int(text[:-1] or 0)
+        else:
+            echo = 0
+        self.off_edit.setText(f"{abs(echo)}")
+        self.off_edit.setFocus()
+        self.__check_accept_disabled()
+
+    def __changed_barcode_edit(self, text):
+        text = text or '0'
+        if text:
+            if text[-1] in digits:
+                echo = int(text)
+            else:
+                echo = int(text[:-1] or 0)
+        else:
+            echo = ''
+        self.barcode_edit.setText(f"{abs(echo) or ''}")
+        self.barcode_edit.setFocus()    
+        self.__check_accept_disabled()
+
+    def __on_accept(self):
+        self.pname   = self.name_edit.text().replace(',', '') or '0'
+        self.price   = int(self.price_edit.text().replace(',', '') or '0')
+        self.off     = int(self.off_edit.text())
+        self.no      = int(self.no_edit.text().replace(',', '') or '0')
+        self.barcode = self.barcode_edit.text().replace(',', '') or '0'
+
+    def __check_accept_disabled(self):
+        self.save_change_btn.setDisabled(not (
+            self.name_edit.text() and
+            self.price_edit.text() != '0' and
+            self.barcode_edit.text()
+        ))
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+
+    dlg = ProductEditorDialog(pname="test")
+    if dlg.exec_() == QDialog.Accepted:
+        print(f"pname   : {dlg.pname}")
+        print(f"price   : {dlg.price}")
+        print(f"off     : {dlg.off}%")
+        print(f"no      : {dlg.no}")
+        print(f"barcode : {dlg.barcode}")
+    else:
+        print("canceled")
+
+    sys.exit(0)

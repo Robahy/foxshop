@@ -12,7 +12,7 @@ import sys, os, winsound
 class NumberDialog(QDialog):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('cash page')
+        self.setWindowTitle('Enter number')
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.__num = 0
@@ -50,7 +50,6 @@ class NumberDialog(QDialog):
         keypad_width = 3 * BUTTON_W + 2 * GRID_SPACING
         self.line_edit = QLineEdit(f"{self.__num}")
         self.line_edit.setFocusPolicy(Qt.StrongFocus)
-        self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.line_edit.setFixedWidth(keypad_width)
         self.line_edit.setFixedHeight(50)
         left.addWidget(self.line_edit)
@@ -93,6 +92,7 @@ class NumberDialog(QDialog):
         self.setLayout(main_layout)
 
     def __signals(self):
+        self.line_edit.textChanged.connect(self.__changed_line_edit)
         self.__btns.ok_btn.clicked.connect(self.accept)
         self.__btns.cancel_btn.clicked.connect(self.reject)
 

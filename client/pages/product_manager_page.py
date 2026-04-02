@@ -1,9 +1,10 @@
 import sys, os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-    QTableWidget, QPushButton, QHeaderView, QAbstractItemView, QTableWidgetItem
+    QTableWidget, QPushButton, QHeaderView, QAbstractItemView, QTableWidgetItem, QDialog
 )
 from PyQt5.QtCore import Qt
+from dialogs import YesNoDialog, ProductEditorDialog
 
 class ProductsTableWidget(QTableWidget):
     def __init__(self):
@@ -56,7 +57,7 @@ class ProductsTableWidget(QTableWidget):
             row+1,
             data.get('pname'),
             data.get('price'),
-            f"{data.get('discount')}%",
+            f"{data.get('off')}%",
             data.get('no'),
             data.get('barcode')
         ]
@@ -82,6 +83,7 @@ class ProductManagementPage(QWidget):
 
         self.__setup_ui()
         self.__signals()
+        self.__check_btn_disabled()
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'product_manager_page.qss'), 'r') as f:
                 style = f.read()
@@ -127,24 +129,80 @@ class ProductManagementPage(QWidget):
         self.__table.reload(self.my_products)
 
     def __product_delete_signal(self):
-        pass
+        try:
+            row = self.__table.currentRow()
+            if row != -1:
+                yes_no = YesNoDialog('آیا میخواهید کالا حذف شود؟')
+                if yes_no.exec_() == QDialog.Accepted:
+                    res = self.__foxapi.delete_product_by_id(self.my_products[row].get('id'))
+                    if res.status_code == 204:
+                        self.my_products.pop(row)
+        except Exception:
+            pass
+        finally:
+            self.__table.reload(self.my_products)
+            self.__check_btn_disabled()
+
 
     def __product_add_signal(self):
-        pass
+        try:
+            in_p = ProductEditorDialog()
+            if in_p.exec_() == QDialog.Accepted:
+                product = {
+                    'pname'   : in_p.pname,
+                    'price'   : in_p.price,
+                    'off'     : in_p.off,
+                    'no'      : in_p.no,
+                    'barcode' : in_p.barcode
+                }
+                res = self.__foxapi.create_product(product)
+                if res.status_code == 201:
+                    self.my_products.append(res.json())
+        except Exception:
+            pass
+        finally:
+            self.__table.reload(self.my_products)
+            self.__check_btn_disabled()
 
     def __product_edit_signal(self):
-        pass
+        try:
+            row = self.__table.currentRow()
+            if row != -1:
+                product:dict = self.my_products[row]
+                in_p = ProductEditorDialog(
+                    pname   = product.get('pname'),
+                    price   = product.get('price'),
+                    off     = product.get('off'),
+                    no      = product.get('no'),
+                    barcode = product.get('barcode'),
+                    is_edit = True
+                )
+                if in_p.exec_() == QDialog.Accepted:
+                    update_product = {
+                        'id'      : product.get('id'),
+                        'pname'   : in_p.pname,
+                        'price'   : in_p.price,
+                        'off'     : in_p.off,
+                        'no'      : in_p.no,
+                        'barcode' : in_p.barcode
+                    }
+                    res = self.__foxapi.edit_product_by_id(update_product)
+                    if res.status_code == 200:
+                        self.my_products[row] = res.json()
+        except Exception:
+            pass
+        finally:
+            self.__table.reload(self.my_products)
+            self.__check_btn_disabled()
 
     def __check_btn_disabled(self):
         row_selected    = self.__table.currentRow()
 
         if row_selected != -1:
             self.__btn_delete.setDisabled(False)
-            self.__btn_add.setDisabled(False)
             self.__btn_edit.setDisabled(False)
         else:
             self.__btn_delete.setDisabled(True)
-            self.__btn_add.setDisabled(True)
             self.__btn_edit.setDisabled(True)
 
 

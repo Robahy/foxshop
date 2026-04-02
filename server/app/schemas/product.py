@@ -35,5 +35,6 @@ class ProductUpdate(ProductBase):
 
 class ProductOut(ProductBase):
     id: int
+    barcode: int
     class Config:
         from_attributes = True

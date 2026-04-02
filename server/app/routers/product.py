@@ -31,11 +31,11 @@ def product_update_by_id(update_product: ProductUpdate, db: Session = Depends(ge
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product {update_product.id} Not Found")
     return product
 
-@router.delete('/{product_id}')
+@router.delete('/{product_id}', status_code=status.HTTP_204_NO_CONTENT)
 def product_delete_by_id(product_id: int, db: Session = Depends(get_db)):
     if not crud.product_delete_by_id(db, product_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Product {id} Not Found")
-    return Response(status_code=status.HTTP_204_NO_CONTENT, content=True)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
     
 @router.delete('/', status_code=status.HTTP_200_OK)
 def product_delete_all(db: Session = Depends(get_db)):

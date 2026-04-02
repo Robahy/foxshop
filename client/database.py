@@ -3,7 +3,7 @@ import requests, subprocess, os
 class ServerManager:
     def __init__(self):
         self.process = None
-        self.app_path = os.path.join(os.path.dirname(__file__), '..', 'server', 'main.py')
+        self.app_path = os.path.join(os.path.dirname(__file__), '..', 'server', 'app', 'main.py')
         self.__url = "http://127.0.0.1:8000"
 
     def start(self):
@@ -34,16 +34,14 @@ class ServerManager:
         return self.process is not None
     # End FastAPI
 
+    # Requests Product
     def get_products(self):
         try:
             res = requests.get(f'{self.__url}/product/')
             return res.json() if res.status_code == 200 else []
         except Exception:
             return []
-
-    def get_shoper(self):
-        return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]
-
+        
     def get_product_by_barcode(self, barcode):
         return {
             'barcode'  : barcode,
@@ -52,6 +50,18 @@ class ServerManager:
             'discount' : 10,
             'no'       : 100
         }
+    
+    def create_product(self, product):
+        return requests.post(f"{self.__url}/product/", json=product)
 
+    def edit_product_by_id(self, product):
+        return requests.put(f"{self.__url}/product/", json=product)
+
+    def delete_product_by_id(self, id):
+        return requests.delete(f"{self.__url}/product/{id}")
+
+    def get_shoper(self):
+        return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]
+    
     def verify_cashier(self, cashier_id, password) -> bool:
         return True
