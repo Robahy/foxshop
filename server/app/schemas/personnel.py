@@ -52,6 +52,7 @@ class PersonnelUpdate(PersonnelBase):
     id: int
 
 class PersonnelOut(PersonnelBase):
+    id: int
     code: int
     factors: List[FactorOut]
     class Config:

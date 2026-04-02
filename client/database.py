@@ -59,6 +59,14 @@ class ServerManager:
 
     def delete_product_by_id(self, id):
         return requests.delete(f"{self.__url}/product/{id}")
+    
+    # Requests Personnel
+    def get_personnels(self):
+        try:
+            res = requests.get(f'{self.__url}/personnel/')
+            return res.json() if res.status_code == 200 else []
+        except Exception:
+            return []
 
     def get_shoper(self):
         return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]

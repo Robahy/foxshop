@@ -1,0 +1,4 @@
+def select_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "select Pic", "", "Image (*.jpg *.jpeg *.png)")
+        if file_path:
+            self.label.setText(f"مسیر فایل:\n{file_path}")

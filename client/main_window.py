@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 from database import ServerManager
-from pages import MainPage, FactorPage, ProductManagementPage
+from pages import MainPage, FactorPage, ProductManagementPage, PersonnelManagerPage
 import sys
 
 class MainWindow(QMainWindow):
@@ -13,14 +13,16 @@ class MainWindow(QMainWindow):
         self.foxapi = ServerManager()
         
         # Pages
-        main_page            = MainPage(self.changer_page, self.foxapi) # Page 0
-        factor_page          = FactorPage(self.changer_page, self.foxapi) # Page 1
-        product_manager_page = ProductManagementPage(self.changer_page, self.foxapi) # Page 2
+        main_page              = MainPage(self.changer_page, self.foxapi) # Page 0
+        factor_page            = FactorPage(self.changer_page, self.foxapi) # Page 1
+        product_manager_page   = ProductManagementPage(self.changer_page, self.foxapi) # Page 2
+        personnel_manager_page = PersonnelManagerPage(self.changer_page, self.foxapi) # Page 3
 
         # Add Pages
         self.changer_page.addWidget(main_page)
         self.changer_page.addWidget(factor_page)
         self.changer_page.addWidget(product_manager_page)
+        self.changer_page.addWidget(personnel_manager_page)
 
 
         self.setCentralWidget(self.changer_page)

@@ -72,12 +72,14 @@ class MainPage(QWidget):
         self.__circle_green.setGeometry(10, 25, 12, 12)
         self.__circle_green.setObjectName("circle-green")
         self.__btn_product_manager = QPushButton("مدریت کالا ها")
+        self.__btn_personnel_manager = QPushButton("مدریت پرسنل")
         self.__btn_pay_manager = QPushButton("مدریت فروش")
         self.__btn_exit = QPushButton("خروج")
 
         panel_layout.addWidget(self.__btn_start_shop)
         panel_layout.addWidget(self.__btn_config_server)
         panel_layout.addWidget(self.__btn_product_manager)
+        panel_layout.addWidget(self.__btn_personnel_manager)
         panel_layout.addWidget(self.__btn_pay_manager)
         panel_layout.addWidget(self.__btn_exit)
         panel_layout.addStretch()
@@ -89,6 +91,7 @@ class MainPage(QWidget):
         self.__btn_start_shop.clicked.connect(lambda: self.__changer_page.setCurrentIndex(1))
         self.__btn_config_server.clicked.connect(self.__config_server_sinal)
         self.__btn_product_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(2))
+        self.__btn_personnel_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(3))
         self.__btn_exit.clicked.connect(lambda: self.window().close())
 
     def keyPressEvent(self, event):
