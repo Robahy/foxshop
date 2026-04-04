@@ -2,17 +2,25 @@ from sqlalchemy.orm import Session
 from app.models import Personnel
 from app.schemas import PersonnelCreate, PersonnelUpdate
 from app.utils.log_decorator import log
+from app.utils.security import password_hash, verify_password
+from datetime import datetime
+import random
 
 @log
 def create_personnel(db: Session, personnel: PersonnelCreate) -> Personnel:
     """
     Create New Personnel
     """
+    last = db.query(Personnel).order_by(Personnel.id.desc()).first()
+    next_id = 1 if not last else last.id + 1
+    now = datetime.now()
+
     new_personnel = Personnel(
-        fname = personnel.fname,
-        code = personnel.code,
-        password_hash = personnel.password_hash,
-        password_cach = personnel.password_cach,
+        fname         = personnel.fname,
+        face_id       = f"{now.strftime("%Y%m%d-%H%M%S")}-{personnel.face_id}",
+        code          = f"4{next_id:02}-{random.randint(1,9)}00",
+        password_hash = password_hash(personnel.password_hash),
+        password_cash = password_hash(personnel.password_cash),
         level         = personnel.level,
         bale_id       = personnel.bale_id
     )
@@ -29,7 +37,7 @@ def personnel_get_all(db: Session):
     return db.query(Personnel).all()
 
 @log
-def personnel_cach_get_all(db: Session):
+def personnel_cash_get_all(db: Session):
     """
     Get PersonnelCash ALL
     """
@@ -66,9 +74,11 @@ def personnel_update_by_id(db: Session, update_personnel: PersonnelUpdate):
         return False
     
     personnel.fname         = update_personnel.fname
-    personnel.password_hash = update_personnel.password_hash
-    personnel.password_cach = update_personnel.password_cach
+    personnel.face_id       = update_personnel.face_id
+    personnel.password_hash = password_hash(personnel.password_hash)
+    personnel.password_cash = password_hash(personnel.password_cash)
     personnel.level         = update_personnel.level
+    personnel.bale_id       = update_personnel.bale_id
     
     db.commit()
     db.refresh(personnel)

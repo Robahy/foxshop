@@ -1,0 +1,89 @@
+QWidget {
+    background-color: #1e1e1e;
+    font-family: Tahoma;
+    font-size: 14px;
+    color: #dddddd;
+    padding: 6px;
+}
+
+QLineEdit , QLabel#code{
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+QLabel#title {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+QLabel#face-id {
+    border: 2px solid #ff8c2a;
+    border-radius: 10px;
+    background-color: #3a3a3a;
+    padding: 4px;
+}
+
+QPushButton {
+    background: #3a3a3a;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 10px;
+    font-size: 16px;
+    padding: 10px 20px;
+}
+
+QPushButton:hover {
+    background-color: #4a4a4a;
+    border-color: #ff8c2a;
+}
+
+QPushButton:pressed {
+    background: #2a2a2a;
+    border-color: #ff8c2a;
+}
+
+QPushButton:disabled {
+    background-color: #141313;
+    color: #777;
+    border-color: #333;
+}
+
+
+/* LevelSelector */
+
+LevelSelector QPushButton {
+    background: #1b1b1b;
+    color: white;
+    border: 1px solid #ff8800;
+    padding: 10px;
+    border-radius: 0;
+}
+
+LevelSelector QPushButton#start {
+    border-right: none;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+LevelSelector QPushButton#center {
+    border-left: none;
+    border-right: none;
+}
+
+LevelSelector QPushButton#end {
+    border-left: none;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+LevelSelector QPushButton:hover {
+    background: #262626;
+}
+
+LevelSelector QPushButton:checked {
+    color: #ff8800;
+}

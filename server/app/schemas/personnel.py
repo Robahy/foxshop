@@ -17,7 +17,7 @@ class PersonnelBase(BaseModel):
         title="PASWORD ACCOUNT",
         description="password account",
     )
-    password_cach: str   = Field(
+    password_cash: str   = Field(
         title="PASWORD CACH",
         description="password cash",
         default=""
@@ -42,18 +42,14 @@ class PersonnelBase(BaseModel):
     )
 
 class PersonnelCreate(PersonnelBase):
-    code: int            = Field(
-        title="CODE",
-        description="personnel code",
-        examples=554,
-    )
+    pass
 
 class PersonnelUpdate(PersonnelBase):
     id: int
 
 class PersonnelOut(PersonnelBase):
     id: int
-    code: int
+    code: str
     factors: List[FactorOut]
     class Config:
         from_attributes = True

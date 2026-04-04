@@ -67,6 +67,16 @@ class ServerManager:
             return res.json() if res.status_code == 200 else []
         except Exception:
             return []
+        
+    def create_personnel(self, personnel):
+        return requests.post(f"{self.__url}/personnel/", json=personnel)
+    
+    def edit_personnel_by_id(self, personnel):
+        return requests.put(f"{self.__url}/personnel/", json=personnel)
+
+    
+    def delete_personnel_by_id(self, id):
+        return requests.delete(f"{self.__url}/personnel/{id}")
 
     def get_shoper(self):
         return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]

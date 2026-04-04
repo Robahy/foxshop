@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud import crud_personnel as crud
@@ -12,9 +12,9 @@ router = APIRouter(
 def personnel_get_all(db: Session = Depends(get_db)):
     return crud.personnel_get_all(db) or []
 
-@router.get('/cach/', response_model=list[PersonnelCachOut], status_code=status.HTTP_200_OK)
+@router.get('/cash/', response_model=list[PersonnelCachOut], status_code=status.HTTP_200_OK)
 def personnel_cash_get_all(db: Session = Depends(get_db)):
-    return crud.personnel_cach_get_all(db)
+    return crud.personnel_cash_get_all(db)
 
 @router.get('/supervisor/', response_model=list[PersonnelOut], status_code=status.HTTP_200_OK)
 def personnel_cash_get_all(db: Session = Depends(get_db)):
@@ -42,10 +42,9 @@ def personnel_update_by_id(update_personnel: PersonnelUpdate, db: Session = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"personnel {update_personnel.id} Not Found")
     return personnel
 
-@router.delete('/{personnel_id}')
+@router.delete('/{personnel_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_by_id(personnel_id: int, db: Session = Depends(get_db)):
     personnel = crud.personnel_delete_by_id(db, personnel_id)
     if not personnel_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"personnel {personnel_id} Not Found")
-    return personnel
-    
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

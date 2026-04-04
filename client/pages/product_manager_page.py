@@ -1,10 +1,10 @@
-import sys, os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QPushButton, QHeaderView, QAbstractItemView, QTableWidgetItem, QDialog
 )
 from PyQt5.QtCore import Qt
 from dialogs import YesNoDialog, ProductEditorDialog
+import sys, os
 
 class ProductsTableWidget(QTableWidget):
     def __init__(self):
@@ -128,22 +128,6 @@ class ProductManagementPage(QWidget):
         self.my_products = self.__foxapi.get_products()
         self.__table.reload(self.my_products)
 
-    def __product_delete_signal(self):
-        try:
-            row = self.__table.currentRow()
-            if row != -1:
-                yes_no = YesNoDialog('آیا میخواهید کالا حذف شود؟')
-                if yes_no.exec_() == QDialog.Accepted:
-                    res = self.__foxapi.delete_product_by_id(self.my_products[row].get('id'))
-                    if res.status_code == 204:
-                        self.my_products.pop(row)
-        except Exception:
-            pass
-        finally:
-            self.__table.reload(self.my_products)
-            self.__check_btn_disabled()
-
-
     def __product_add_signal(self):
         try:
             in_p = ProductEditorDialog()
@@ -158,6 +142,21 @@ class ProductManagementPage(QWidget):
                 res = self.__foxapi.create_product(product)
                 if res.status_code == 201:
                     self.my_products.append(res.json())
+        except Exception:
+            pass
+        finally:
+            self.__table.reload(self.my_products)
+            self.__check_btn_disabled()
+
+    def __product_delete_signal(self):
+        try:
+            row = self.__table.currentRow()
+            if row != -1:
+                yes_no = YesNoDialog('آیا میخواهید کالا حذف شود؟')
+                if yes_no.exec_() == QDialog.Accepted:
+                    res = self.__foxapi.delete_product_by_id(self.my_products[row].get('id'))
+                    if res.status_code == 204:
+                        self.my_products.pop(row)
         except Exception:
             pass
         finally:

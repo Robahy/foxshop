@@ -1,11 +1,11 @@
-import sys, os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QPushButton, QHeaderView, QAbstractItemView, QTableWidgetItem, QDialog, QLabel
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from dialogs import YesNoDialog, ProductEditorDialog
+from dialogs import YesNoDialog, PersonnelEditorDialog
+import sys, os, shutil
 
 class ProductsTableWidget(QTableWidget):
     def __init__(self):
@@ -93,8 +93,6 @@ class ProductsTableWidget(QTableWidget):
                 else:
                     item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.setItem(row, col, item)
-                
-
 
 class PersonnelManagerPage(QWidget):
     def __init__(self, changer_page, foxapi):
@@ -103,10 +101,13 @@ class PersonnelManagerPage(QWidget):
         self.setWindowTitle("Product Manager")
 
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.__DIR_FACES = os.path.join(self.__BASE_DIR, '..', 'static', 'faces')
+
         self.__changer_page = changer_page
         self.__foxapi = foxapi
-        self.my_personnel = []
+        self.my_personnels = []
 
+        os.makedirs(self.__DIR_FACES, exist_ok=True)
         self.__setup_ui()
         self.__signals()
         self.__check_btn_disabled()
@@ -145,80 +146,92 @@ class PersonnelManagerPage(QWidget):
     def __signals(self):
         self.__table.itemClicked.connect(self.__check_btn_disabled)
         self.__btn_exit.clicked.connect(lambda: self.__changer_page.setCurrentIndex(0))
-        self.__btn_delete.clicked.connect(self.__product_delete_signal)
-        self.__btn_add.clicked.connect(self.__product_add_signal)
-        self.__btn_edit.clicked.connect(self.__product_edit_signal)
+        self.__btn_delete.clicked.connect(self.__personnel_delete_signal)
+        self.__btn_add.clicked.connect(self.__personnel_add_signal)
+        self.__btn_edit.clicked.connect(self.__personnel_edit_signal)
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.my_personnel = self.__foxapi.get_personnels()
-        self.__table.reload(self.my_personnel)
+        self.my_personnels = self.__foxapi.get_personnels()
+        self.__table.reload(self.my_personnels)
 
-    def __product_delete_signal(self):
+    def __personnel_add_signal(self):
         try:
-            row = self.__table.currentRow()
-            if row != -1:
-                yes_no = YesNoDialog('آیا میخواهید کالا حذف شود؟')
-                if yes_no.exec_() == QDialog.Accepted:
-                    res = self.__foxapi.delete_product_by_id(self.my_products[row].get('id'))
-                    if res.status_code == 204:
-                        self.my_products.pop(row)
-        except Exception:
-            pass
-        finally:
-            self.__table.reload(self.my_products)
-            self.__check_btn_disabled()
-
-
-    def __product_add_signal(self):
-        try:
-            in_p = ProductEditorDialog()
+            in_p = PersonnelEditorDialog()
+            # file_name = 
             if in_p.exec_() == QDialog.Accepted:
-                product = {
-                    'pname'   : in_p.pname,
-                    'price'   : in_p.price,
-                    'off'     : in_p.off,
-                    'no'      : in_p.no,
-                    'barcode' : in_p.barcode
+                personnel = {
+                    'fname'  : in_p.fname,
+                    'face_id' : os.path.basename(in_p.face_id),
+                    'code'     : in_p.code,
+                    'password_hash' : in_p.password_hash,
+                    'password_cash' : in_p.password_cash,
+                    'level'         : in_p.level,
+                    'bale_id'       : in_p.bale_id
                 }
-                res = self.__foxapi.create_product(product)
+                res = self.__foxapi.create_personnel(personnel)
                 if res.status_code == 201:
-                    self.my_products.append(res.json())
+                    personnel = res.json()
+                    shutil.copy(in_p.face_id, os.path.join(self.__DIR_FACES, personnel.get('face_id')))
+                    self.my_personnels.append(personnel)
         except Exception:
             pass
         finally:
-            self.__table.reload(self.my_products)
+            self.__table.reload(self.my_personnels)
             self.__check_btn_disabled()
 
-    def __product_edit_signal(self):
+    def __personnel_delete_signal(self):
         try:
             row = self.__table.currentRow()
             if row != -1:
-                product:dict = self.my_products[row]
-                in_p = ProductEditorDialog(
-                    pname   = product.get('pname'),
-                    price   = product.get('price'),
-                    off     = product.get('off'),
-                    no      = product.get('no'),
-                    barcode = product.get('barcode'),
-                    is_edit = True
+                personnel = self.my_personnels[row]
+                yes_no = YesNoDialog(f"آیا میخواهید {personnel.get('fname')} حذف شود؟")
+                if yes_no.exec_() == QDialog.Accepted:
+                    res = self.__foxapi.delete_personnel_by_id(personnel.get('id'))
+                    if res.status_code == 204:
+                        os.remove(os.path.join(self.__DIR_FACES, personnel.get('face_id')))
+                        self.my_personnels.pop(row)
+        except Exception:
+            pass
+        finally:
+            self.__table.reload(self.my_personnels)
+            self.__check_btn_disabled()
+
+    def __personnel_edit_signal(self):
+        try:
+            row = self.__table.currentRow()
+            if row != -1:
+                personnel:dict = self.my_personnels[row]
+                in_p = PersonnelEditorDialog(
+                    fname         = personnel.get('fname'),
+                    face_id       = personnel.get('face_id'),
+                    code          = personnel.get('code'),
+                    level         = personnel.get('level'),
+                    bale_id       = personnel.get('bale_id'),
+                    is_edit       = True
                 )
                 if in_p.exec_() == QDialog.Accepted:
-                    update_product = {
-                        'id'      : product.get('id'),
-                        'pname'   : in_p.pname,
-                        'price'   : in_p.price,
-                        'off'     : in_p.off,
-                        'no'      : in_p.no,
-                        'barcode' : in_p.barcode
+                    update_personnel = {
+                        'id'            : personnel.get('id'),
+                        'fname'         : in_p.fname,
+                        'face_id'       : os.path.basename(in_p.face_id),
+                        'code'          : in_p.code,
+                        'password_hash' : in_p.password_hash or personnel.get('password_hash'),
+                        'password_cash' : in_p.password_cash or personnel.get('password_cash'),
+                        'level'         : in_p.level,
+                        'bale_id'       : in_p.bale_id
                     }
-                    res = self.__foxapi.edit_product_by_id(update_product)
+                    res = self.__foxapi.edit_personnel_by_id(update_personnel)
                     if res.status_code == 200:
-                        self.my_products[row] = res.json()
+                        update_personnel = res.json()
+                        if personnel.get('face_id') != update_personnel.get('face_id'):
+                            os.remove(os.path.join(self.__DIR_FACES, personnel.get('face_id')))
+                            shutil.copy(in_p.face_id, os.path.join(self.__DIR_FACES, personnel.get('face_id')))
+                        self.my_personnels[row] = update_personnel
         except Exception:
             pass
         finally:
-            self.__table.reload(self.my_products)
+            self.__table.reload(self.my_personnels)
             self.__check_btn_disabled()
 
     def __check_btn_disabled(self):

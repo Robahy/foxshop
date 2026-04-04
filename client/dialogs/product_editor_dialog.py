@@ -100,7 +100,6 @@ class ProductEditorDialog(QDialog):
         else:
             echo = 0
         line_edit.setText(f"{abs(echo):,}")
-        line_edit.setFocus()
         self.__check_accept_disabled()
 
     def __changed_off_edit(self, text):
