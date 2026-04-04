@@ -66,7 +66,7 @@ class MainPage(QWidget):
         panel_layout.setContentsMargins(15, 15, 15, 15)
 
         self.__btn_start_shop = QPushButton("شروع برنامه")
-        self.__btn_start_shop.setDisabled(True)
+        # self.__btn_start_shop.setDisabled(True)
         self.__btn_config_server = QPushButton("راه اندازی سرور")
         self.__circle_green = QLabel(self.__btn_config_server)
         self.__circle_green.setGeometry(10, 25, 12, 12)

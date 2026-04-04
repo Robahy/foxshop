@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QTableWidgetItem, QAbstractItemView, QStackedWidget)
 from PyQt5.QtCore import Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
 from PyQt5.QtGui import QFont, QColor
-from dialogs import SelectShoperDialog, YesNoDialog, NumberDialog, CashDialog
+from dialogs import YesNoDialog, NumberDialog, CashDialog
 from my_factor import MyFactor
 import sys, os,  winsound
 
@@ -230,6 +230,19 @@ class FactorPage(QWidget):
         self.__btn_view_payments.setObjectName('btn-panel')
         self.__btn_back_menu2 = QPushButton('بازگشت')
         self.__btn_back_menu2.setObjectName('btn-panel')
+
+        # Payment Menu
+        payment_widget = QWidget()
+        payment_menu = QGridLayout(payment_widget)
+        payment_menu.setAlignment(Qt.AlignTop)
+        payment_menu.setSpacing(10)
+        payment_menu.setContentsMargins(0, 0, 0, 0)
+        self.__btn_pay_cash = QPushButton('پرداخت نقدی')
+        self.__btn_pay_cash.setObjectName('btn-panel')
+        self.__btn_pay_bale = QPushButton('پرداخت بله')
+        self.__btn_pay_bale.setObjectName('btn-panel')
+        self.__btn_back_menu3 = QPushButton('بازگشت')
+        self.__btn_back_menu3.setObjectName('btn-panel')
         # End control panel
 
         footer_layout = QVBoxLayout()
@@ -316,10 +329,15 @@ class FactorPage(QWidget):
         supervisor_operations_menu.addWidget(self.__btn_view_factors, 0, 0)
         supervisor_operations_menu.addWidget(self.__btn_back_menu2, 0, 1)
         supervisor_operations_menu.addWidget(self.__btn_view_payments, 1, 1)
+        # Add Payment Panel
+        payment_menu.addWidget(self.__btn_pay_cash, 0, 0)
+        payment_menu.addWidget(self.__btn_back_menu3, 0, 1)
+        payment_menu.addWidget(self.__btn_pay_bale, 1, 1)
         # Add panel_btn
         self.__panel_btn.addWidget(main_menu_widget)
         self.__panel_btn.addWidget(more_menu_widget)
         self.__panel_btn.addWidget(supervisor_operations_widget)
+        self.__panel_btn.addWidget(payment_widget)
         # Add sid_layout
         right_layout.addStretch()
         right_layout.addLayout(input_layout)
@@ -412,15 +430,19 @@ class FactorPage(QWidget):
         self.__line_edit_barcode.returnPressed.connect(self.__return_peresed_line_edit_signal)
         self.__btn_back_menu1.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))
+        self.__btn_back_menu3.clicked.connect(lambda: self.__change_panel_btn(0))
+        # main menu
         self.__btn_more_option.clicked.connect(lambda: self.__change_panel_btn(1))
         self.__btn_supervisor_operations.clicked.connect(lambda: self.__change_panel_btn(2))
+        self.__btn_payment.clicked.connect(lambda: self.__change_panel_btn(3))
         self.__btn_exit.clicked.connect(self.__back_to_main_page_signal)
-        self.__btn_payment.clicked.connect(self.__cash_payment_signal)
         self.__btn_cancel_payment.clicked.connect(self.__cash_payment_cancle_signal)
         self.__btn_set_num_product.clicked.connect(self.__set_number_item_signal)
         self.__btn_cancel_item.clicked.connect(self.__remove_item_signal)
         self.__btn_cancel_factor.clicked.connect(self.__remove_factor_signal)
         self.__btn_change_shoper.clicked.connect(self.__select_shoper_signal)
+        # payment menu
+        self.__btn_pay_cash.clicked.connect(self.__cash_payment_signal)
 
     def __updater(self):
         current_time = QTime.currentTime().toString('HH:mm:ss')
@@ -441,12 +463,7 @@ class FactorPage(QWidget):
 
     def __select_shoper_signal(self) -> bool:
         try:
-            self.__shoper = SelectShoperDialog(self.__fastapi)
-            if self.__shoper.exec_() == QDialog.Accepted:
-                self.myfactor.set_personnel_id(self.__shoper.id)
-                self.__nameShoperLable.setText(f'Shoper: {self.__shoper.name}')
-            else:
-                raise RuntimeError
+            pass
         except Exception:
             return False
         return True

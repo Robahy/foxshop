@@ -14,7 +14,8 @@ class ProductEditorDialog(QDialog):
                 off     : int = 0,
                 no      : int = 0,
                 barcode : str = '',
-                is_edit : bool = False ):
+                is_edit : bool = False
+        ):
         super().__init__()
 
         self.setWindowTitle("Editor Product")

@@ -1,0 +1,22 @@
+#dialog{
+    background:#121212;
+}
+
+#phone_frame{
+    border:3px solid #ff8800;
+    border-radius:20px;
+    background:#1b1b1b;
+}
+
+#prefix{
+    color: white;
+    font-size:80px;
+}
+
+#phone_edit{
+    color:white;
+    font-size:80px;
+    border:none;
+    background:transparent;
+    letter-spacing:8px;
+}

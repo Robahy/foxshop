@@ -10,19 +10,24 @@ class SelectShoperDialog(QDialog):
     def __init__(self, fastapi):
         super().__init__()
         
-        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.fastapi = fastapi
-
+        self.setWindowTitle('Select Shoper')
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
         self.setFixedSize(600, 600)
         
+        self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.fastapi = fastapi
+        self.__setup_ui()
+
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'select_shoper_dialog.qss'), 'r') as f:
                 self.setStyleSheet(f.read())
         except:
             pass
-            
-        
+
+        self.setModal(True)
+        self.showFullScreen()
+
+    def __setup_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setObjectName("main-layout")
         main_layout.setContentsMargins(15, 15, 15, 15)
@@ -60,7 +65,6 @@ class SelectShoperDialog(QDialog):
         self.__vendor_list.itemDoubleClicked.connect(self.check_password)
         self.__password_edit.returnPressed.connect(self.check_password)
         
-        self.setModal(True)
 
     def check_password(self):
         row      = self.__vendor_list.currentRow()
