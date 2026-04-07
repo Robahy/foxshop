@@ -18,7 +18,7 @@ class FactorTableWidget(QTableWidget):
         self.setHorizontalHeaderLabels([
             'Total',
             'number',
-            'discount',
+            'off',
             'Price',
             'Name',
             'Barcode',
@@ -45,7 +45,6 @@ class FactorTableWidget(QTableWidget):
 
     def reload(self, scrool_to_buttom: bool = False) -> bool:
         try:
-
             scroll_pos = self.verticalScrollBar().value()
             selected = self.currentRow()
 
@@ -77,7 +76,7 @@ class FactorTableWidget(QTableWidget):
             data = [
                 data.get('total'),
                 data.get('no'),
-                f'{data.get('discount')}%',
+                f'{data.get('off')}%',
                 data.get('price'),
                 data.get('pname'),
                 data.get('barcode'),
@@ -268,12 +267,12 @@ class FactorPage(QWidget):
         self.__len_products = QLabel('0')
         self.__len_products.setObjectName('status-res')
         self.__len_products.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        discount = QHBoxLayout()
-        lbl_discount = QLabel('مجموع تخفیف')
-        lbl_discount.setObjectName('status-title')
-        self.__lbl_discount = QLabel('0')
-        self.__lbl_discount.setObjectName('status-res')
-        self.__lbl_discount.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        off = QHBoxLayout()
+        lbl_off = QLabel('مجموع تخفیف')
+        lbl_off.setObjectName('status-title')
+        self.__lbl_off = QLabel('0')
+        self.__lbl_off.setObjectName('status-res')
+        self.__lbl_off.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         row2 = QHBoxLayout()
         row2.setSpacing(20)
         total = QHBoxLayout()
@@ -357,14 +356,14 @@ class FactorPage(QWidget):
         len_product.addWidget(lbl_len_product)
         len_product.addStretch(1)
         len_product.addWidget(self.__len_products)
-        # Add discount
-        discount.addWidget(lbl_discount)
-        discount.addStretch(1)
-        discount.addWidget(self.__lbl_discount)
+        # Add off
+        off.addWidget(lbl_off)
+        off.addStretch(1)
+        off.addWidget(self.__lbl_off)
         # Add row1
         row1.addLayout(row_count)
         row1.addLayout(len_product)
-        row1.addLayout(discount)
+        row1.addLayout(off)
         # Add total
         total.addWidget(lbl_total)
         total.addStretch(1)
@@ -432,6 +431,7 @@ class FactorPage(QWidget):
     def __signals(self):
         self.__table.itemClicked.connect(self.__check_btn_disabled)
         self.__line_edit_barcode.returnPressed.connect(self.__return_peresed_line_edit_signal)
+        # back btns menu
         self.__btn_back_menu1.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_back_menu2.clicked.connect(lambda: self.__change_panel_btn(0))
         self.__btn_back_menu3.clicked.connect(lambda: self.__change_panel_btn(0))
@@ -486,7 +486,7 @@ class FactorPage(QWidget):
                     product.get('barcode'),
                     product.get('pname'),
                     product.get('price'),
-                    product.get('discount')
+                    product.get('off')
                 )
             else:
                 raise RuntimeError
@@ -597,7 +597,7 @@ class FactorPage(QWidget):
     def __reload_status(self):
         self.__lbl_row_count.setText(str(self.__table.rowCount()))
         self.__len_products.setText(str(self.myfactor.len_products))
-        self.__lbl_discount.setText(f'{self.myfactor.total_discount:,}')
+        self.__lbl_off.setText(f'{self.myfactor.total_off:,}')
         self.__lbl_total.setText(f'{self.myfactor.total:,}')
         self.__lbl_payment.setText(f'{sum(self.myfactor.payment_amount):,}')
         self.__lbl_balance.setText(f'{self.myfactor.balance:,}')

@@ -43,13 +43,8 @@ class ServerManager:
             return []
         
     def get_product_by_barcode(self, barcode):
-        return {
-            'barcode'  : barcode,
-            'pname'    : 'name product',
-            'price'    : 200,
-            'discount' : 10,
-            'no'       : 100
-        }
+        res = requests.get(f'{self.__url}/product/{barcode}')
+        return res.json() if res.status_code == 200 else None
     
     def create_product(self, product):
         return requests.post(f"{self.__url}/product/", json=product)

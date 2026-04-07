@@ -75,7 +75,7 @@ class MyFactor():
                     barcode:  int,
                     pname:    str,
                     price:    int,
-                    discount: int,
+                    off:      int,
                     num:      int  = 1,
                     removed:  bool = False
                     ) -> bool:
@@ -93,9 +93,9 @@ class MyFactor():
                     'barcode'  : barcode,
                     'pname'    : pname,
                     'price'    : price,
-                    'discount' : discount,
+                    'off'      : off,
                     'no'       : num,
-                    'total'    : self.__find_total(price, discount, num),
+                    'total'    : self.__find_total(price, off, num),
                     'removed'  : removed
                 }
             )
@@ -115,7 +115,7 @@ class MyFactor():
             if num < 0:
                 num = product.get('no') + abs(num)
             product['no'] = num
-            product['total'] = self.__find_total(product.get('price'), product.get('discount'), num)
+            product['total'] = self.__find_total(product.get('price'), product.get('off'), num)
         except Exception:
             return False
         return True
@@ -167,7 +167,7 @@ class MyFactor():
                     product.get('barcode'),
                     product.get('pname'),
                     product.get('price'),
-                    product.get('discount'),
+                    product.get('off'),
                     product.get('num', 1),
                     product.get('removed', False)
                 )
@@ -181,18 +181,18 @@ class MyFactor():
         total = 0
         for i, product in enumerate(products):
             if not self.is_removed_product(i):
-                total += self.__find_total(product.get('price'), product.get('discount'), product.get('no'))
+                total += self.__find_total(product.get('price'), product.get('off'), product.get('no'))
         return int(total)
     
     @property
-    def total_discount(self) -> int:
+    def total_off(self) -> int:
         products = self.products
-        total_discount = 0
+        total_off = 0
         for i, product in enumerate(products):
             if not self.is_removed_product(i):
                 price = product.get('price')
-                total_discount += (price * product.get('discount')/100) * product.get('no')
-        return int(total_discount)
+                total_off += (price * product.get('off')/100) * product.get('no')
+        return int(total_off)
 
     def set_payment(self, *, cash_amount=0, card_amount=0):
         """
@@ -258,11 +258,11 @@ class MyFactor():
         return True
 
     # manager functions
-    def __find_total(self, price: int, discount: int, num:int=1) -> int:
+    def __find_total(self, price: int, off: int, num:int=1) -> int:
         """
         Find Total product
         """
-        return int((price - (price * discount / 100)) * num)
+        return int((price - (price * off / 100)) * num)
     
     def __is_product(self, product: dict) -> bool:
         """
@@ -270,12 +270,12 @@ class MyFactor():
         """
         check = []
         try:
-            if not ['barcode', 'pname', 'price', 'discount'] in product.keys():
+            if not ['barcode', 'pname', 'price', 'off'] in product.keys():
                 raise RuntimeError
             check.append( str(product['barcode']).isdigit()  )
             check.append( type(product['pname']) == str()    )
             check.append( str(product['price']).isdigit()    )
-            check.append( str(product['discount']).isdigit() )
+            check.append( str(product['off']).isdigit() )
         except Exception:
             return False
         return all(check)
@@ -290,7 +290,7 @@ class MyFactor():
         res += f"\n│ {f'Personnel ID   : {self.personnel_id}'.ljust(width-4)} │"
         res += f"\n│ {f'Customer ID    : {self.customer_id}'.ljust(width-4)} │"
         res += f"\n│ {f'Total          : {self.total}'.ljust(width-4)} │"
-        res += f"\n│ {f'Total discount : {self.total_discount}'.ljust(width-4)} │"
+        res += f"\n│ {f'Total off : {self.total_off}'.ljust(width-4)} │"
         res += f"\n│ {f'Cash           : {payment_amount[0]}'.ljust(width-4)} │"
         res += f"\n│ {f'Card           : {payment_amount[1]}'.ljust(width-4)} │"
         res += f"\n│ {f'Paid           : {self.paid}'.ljust(width-4)} │"
@@ -300,11 +300,11 @@ class MyFactor():
         if products:
             d = (width-7)//5 +1
             res += f"\n├{'─'*d}┳{'─'*d}┳{'─'*d}┳{'─'*d}┳{'─'*d}┤"
-            res += f"\n│{'Name'.center(d)}│{'Price'.center(d)}│{'Num'.center(d)}│{'Discount'.center(d)}│{'Total'.center(d)}│"
+            res += f"\n│{'Name'.center(d)}│{'Price'.center(d)}│{'Num'.center(d)}│{'off'.center(d)}│{'Total'.center(d)}│"
             res += f"\n├{'─'*d}╋{'─'*d}╋{'─'*d}╋{'─'*d}╋{'─'*d}┤"
             for i, product in enumerate(products):
                 if not self.is_removed_product(i):
-                    res += f"\n│{f'{product.get('pname')}'.center(d)}│{f'{product.get('price')}'.center(d)}│{f'{product.get('no')}'.center(d)}│{f'{product.get('discount')}%'.center(d)}│{f'{product.get('total')}'.center(d)}│"
+                    res += f"\n│{f'{product.get('pname')}'.center(d)}│{f'{product.get('price')}'.center(d)}│{f'{product.get('no')}'.center(d)}│{f'{product.get('off')}%'.center(d)}│{f'{product.get('total')}'.center(d)}│"
                     if i+1 == len(products):
                         res += f"\n├{'─'*d}┻{'─'*d}┻{'─'*d}┻{'─'*d}┻{'─'*d}┤"
                     else:
