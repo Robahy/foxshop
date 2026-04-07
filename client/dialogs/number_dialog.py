@@ -99,26 +99,22 @@ class NumberDialog(QDialog):
     def __num_pad_clicked(self, text):
         content = self.line_edit.text()
         if text == "C":
-            self.line_edit.setText('0')
+            content = '0'
         elif text == "⌫":
-            if len(content) <= 1:
-                self.__num = 0
-            else:
-                self.line_edit.setText(self.line_edit.text()[:-1])
+            content = content[:-1] or '0'
         else:
             if content == '0':
-                self.line_edit.setText(text)
+                content = text
             else:
-                self.line_edit.setText(self.line_edit.text() + text)
-        self.line_edit.setText(f"{self.__num}")
+                content += text
+        self.__num = int(content)
+        self.line_edit.setText(f"{content}")
         self.line_edit.setFocus()
 
     def __changed_line_edit(self, text):
-        if (text and text[-1] in digits):
-            self.__num = int(text.replace(',', '') or 0)
-        else:
-            self.__num = 0
-        self.line_edit.setText(f"{abs(self.__num)}")
+        filtered = "".join(ch for ch in text if ch in digits)
+        self.__num = int(filtered)
+        self.line_edit.setText(f"{filtered or '0'}")
         self.line_edit.setFocus()
 
     def closeEvent(self, event):
@@ -126,13 +122,13 @@ class NumberDialog(QDialog):
         winsound.MessageBeep()
     
     @property
-    def num(self):
+    def number(self):
         return self.__num
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    cash = NumberDialog(10)
-    status = cash.exec_() == QDialog.Accepted
-    print(status)
-    if status:
-        print(f"{cash.num}")
+    cash = NumberDialog()
+    if cash.exec_() == QDialog.Accepted:
+        print(f"{cash.number}")
+    else:
+        print("Canceled!")

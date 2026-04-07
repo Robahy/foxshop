@@ -57,5 +57,6 @@ class PersonnelOut(PersonnelBase):
 class PersonnelCachOut(BaseModel):
     id: int
     fname: str
+    face_id: str
     class Config:
         from_attributes = True

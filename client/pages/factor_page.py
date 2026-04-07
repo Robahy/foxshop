@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QGridLayout, QFrame, QHeaderView, QDialog,
                              QTableWidgetItem, QAbstractItemView, QStackedWidget)
 from PyQt5.QtCore import Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QPixmap
 from dialogs import YesNoDialog, NumberDialog, CashDialog
 from my_factor import MyFactor
 import sys, os,  winsound
@@ -122,6 +122,7 @@ class FactorPage(QWidget):
         self.myfactor = MyFactor(factor_id, personnel_id, customer_id, products) # Create MyFactor
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.__DIR_FACES = os.path.join(self.__BASE_DIR, '..', 'static', 'faces')
         self.__changer_page = changer_page
         self.__fastapi = fastapi
         self.__setup_ui()
@@ -133,7 +134,7 @@ class FactorPage(QWidget):
             pass
 
         timer = QTimer(self)
-        timer.timeout.connect(self.__updater)
+        timer.timeout.connect(self.__updater_clock)
         timer.start(1000)
 
         self.__signals()
@@ -299,9 +300,9 @@ class FactorPage(QWidget):
         status_bar = QHBoxLayout(status_bar_panel)
         status_bar_panel.setObjectName('status-bar')
         status_bar.setContentsMargins(0, 0, 0, 0)
-        self.__nameShoperLable = QLabel('Shoper: Selecting...')
-        status_bar.addWidget(self.__nameShoperLable)
-        status_bar.addStretch(1)
+        self.__lbl_face = QLabel('place face...')
+        self.__lbl_face.setAlignment(Qt.AlignCenter)
+        self.__lbl_nameFoxShoper = QLabel(' | Shoper: Selecting...')
         self.__lbl_status = QLabel('Connected to store database | Suspended transactions: 0 |')
         self.__lbl_clock = QLabel()
 
@@ -381,6 +382,9 @@ class FactorPage(QWidget):
         row2.addLayout(payment)
         row2.addLayout(balance)
         # Add status_bar
+        status_bar.addWidget(self.__lbl_face)
+        status_bar.addWidget(self.__lbl_nameFoxShoper)
+        status_bar.addStretch()
         status_bar.addWidget(self.__lbl_status)
         status_bar.addWidget(self.__lbl_clock)
         # Add status_layout
@@ -444,7 +448,7 @@ class FactorPage(QWidget):
         # payment menu
         self.__btn_pay_cash.clicked.connect(self.__cash_payment_signal)
 
-    def __updater(self):
+    def __updater_clock(self):
         current_time = QTime.currentTime().toString('HH:mm:ss')
         self.__lbl_clock.setText(current_time)
 
@@ -498,9 +502,9 @@ class FactorPage(QWidget):
         try:
             row = self.__table.currentRow()
             if row != -1 and not self.myfactor.is_removed_product(row):
-                number = NumberDialog()
-                if number.exec_() == QDialog.Accepted and number.num:
-                    if not self.myfactor.set_number_product(row, number.num):
+                number_dlg = NumberDialog()
+                if number_dlg.exec_() == QDialog.Accepted:
+                    if not self.myfactor.set_number_product(row, number_dlg.number):
                         raise RuntimeError
             else:
                 raise RuntimeError
@@ -580,6 +584,14 @@ class FactorPage(QWidget):
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
+
+    def set_personnel(self, id, name, face_path):
+        self.myfactor.set_personnel_id(id)
+
+        face_pic = QPixmap(os.path.join(self.__DIR_FACES, face_path))
+        if not face_pic.isNull():
+            self.__lbl_face.setPixmap(face_pic.scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.__lbl_nameFoxShoper.setText(f"| Shoper: {name}")
 
     # set status
     def __reload_status(self):

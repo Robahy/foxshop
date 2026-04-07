@@ -88,7 +88,7 @@ class MainPage(QWidget):
         root.addWidget(panel, 2)
 
     def __signals(self):
-        self.__btn_start_shop.clicked.connect(lambda: self.__changer_page.setCurrentIndex(1))
+        self.__btn_start_shop.clicked.connect(lambda: self.__changer_page.setCurrentIndex(4))
         self.__btn_config_server.clicked.connect(self.__config_server_sinal)
         self.__btn_product_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(2))
         self.__btn_personnel_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(3))

@@ -74,12 +74,23 @@ class ServerManager:
     def edit_personnel_by_id(self, personnel):
         return requests.put(f"{self.__url}/personnel/", json=personnel)
 
-    
     def delete_personnel_by_id(self, id):
         return requests.delete(f"{self.__url}/personnel/{id}")
 
-    def get_shoper(self):
-        return ["احمد محمدی", "سارا کریمی", "علی رضایی", "فاطمه نوری", "مدیریت"]
+    def get_personnel_cash_all(self):
+        try:
+            res = requests.get(f'{self.__url}/personnel/cash/')
+            return res.json() if res.status_code == 200 else []
+        except Exception:
+            return []
     
-    def verify_cashier(self, cashier_id, password) -> bool:
-        return True
+    def verify_pass_cash(self, id: int, password: str) -> bool:
+        data = {
+            'password': password
+        }
+        res = requests.post(f"{self.__url}/personnel/verify/cash/{id}", params=data)
+        if res.status_code == 200:
+            data = res.json()
+            return data.get('is_true')
+        else:
+            return False

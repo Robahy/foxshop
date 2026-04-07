@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud import crud_personnel as crud
 from app.schemas import PersonnelCreate, PersonnelUpdate, PersonnelOut, PersonnelCachOut
+from app.utils.security import verify_password
 
 router = APIRouter(
     prefix='/personnel',
@@ -44,7 +45,24 @@ def personnel_update_by_id(update_personnel: PersonnelUpdate, db: Session = Depe
 
 @router.delete('/{personnel_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_by_id(personnel_id: int, db: Session = Depends(get_db)):
-    personnel = crud.personnel_delete_by_id(db, personnel_id)
+    crud.personnel_delete_by_id(db, personnel_id)
     if not personnel_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"personnel {personnel_id} Not Found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+# verify pass personnel
+@router.post('/verify/{personnel_id}', status_code=status.HTTP_200_OK)
+def verify_pass(personnel_id: int, password: str, db: Session = Depends(get_db)):
+    personnel = crud.personnel_get_by_id(db, personnel_id)
+    return {
+        'password': password,
+        'is_true' : verify_password(password, personnel.password_hash)
+    }
+
+# verify pass cash
+@router.post('/verify/cash/{personnel_id}', status_code=status.HTTP_200_OK)
+def verify_pass_cash(personnel_id: int, password: str, db: Session = Depends(get_db)):
+    personnel = crud.personnel_get_by_id(db, personnel_id)
+    return {
+        'is_true' : verify_password(password, personnel.password_hash)
+    }

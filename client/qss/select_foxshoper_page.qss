@@ -1,0 +1,69 @@
+* {
+    font-family: Tahoma;
+}
+
+QWidget {
+    background-color: #121212;
+    color: white;
+}
+
+QLabel {
+    color: white;
+    background: transparent;
+}
+
+QLabel#title {
+    font-size: 56px;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+QFrame{
+    background-color: transparent;
+}
+
+/* پایه لیست */
+QAbstractScrollArea {
+    background: #121212;
+    border: none;
+}
+
+/* خود لیست */
+QListWidget {
+    background: #121212;
+    border: none;
+    outline: none;
+}
+
+QListWidget {
+    background-color: #121212;
+    alternate-background-color: #121212;
+    border: none;
+}
+
+/* داخل واقعی لیست */
+QListWidget::viewport {
+    background: #121212;
+}
+
+/* آیتم */
+QListWidget::item {
+    background: #121212;
+    padding: 12px;
+    color: #e5e5e5;
+    border-left: 4px solid transparent;
+}
+
+/* hover */
+QListWidget::item:hover {
+    background: #222222;
+    border-left: 4px solid #ff8c00;
+    color: #ff8c00;
+}
+
+/* انتخاب */
+QListWidget::item:selected {
+    background: #2a2a2a;
+    border-left: 4px solid #ff8c00;
+    color: #ff8c00;
+}

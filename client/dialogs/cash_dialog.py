@@ -149,13 +149,9 @@ class CashDialog(QDialog):
         self.line_edit.setFocus()
 
     def __changed_line_edit(self, text):
-        if (text and text[-1] in digits):
-            number = int(text.replace(',', '') or 0)
-            if number <= self.max:
-                self.__cash_num = number
-        else:
-            self.__cash_num = 0
-        self.line_edit.setText(f"{abs(self.__cash_num):,}")
+        filtered = "".join(ch for ch in text.replace(',', '') or 0 if ch in digits)
+        self.__cash_num = filtered
+        self.line_edit.setText(f"{filtered:,}")
         self.line_edit.setFocus()
 
     def closeEvent(self, event):

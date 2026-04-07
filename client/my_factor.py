@@ -1,7 +1,7 @@
 class MyFactor():
     def __init__(self,
+                personnel_id: int,
                 factor_id: int   = -1,
-                personnel_id: int  = -1,
                 customer_id: int = -1,
                 products: list   = [],
                 cash: int        = 0,
