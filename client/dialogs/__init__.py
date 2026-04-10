@@ -4,3 +4,4 @@ from .number_dialog import NumberDialog
 from .product_editor_dialog import ProductEditorDialog
 from .personnel_editor_dialog import PersonnelEditorDialog
 from .password_input_dialog import PasswordInputDialog
+from .config_server_dialog import ConfigServerDialog

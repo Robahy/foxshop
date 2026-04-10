@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap
-from dialogs.config_server_dialog import ConfigServerDialog
+from dialogs import ConfigServerDialog, YesNoDialog
 import sys, os, threading
 
 
@@ -92,7 +92,7 @@ class MainPage(QWidget):
         self.__btn_config_server.clicked.connect(self.__config_server_sinal)
         self.__btn_product_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(2))
         self.__btn_personnel_manager.clicked.connect(lambda: self.__changer_page.setCurrentIndex(3))
-        self.__btn_exit.clicked.connect(lambda: self.window().close())
+        self.__btn_exit.clicked.connect(self.__exit_signal)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier:
@@ -111,6 +111,13 @@ class MainPage(QWidget):
             self.__btn_start_shop.setDisabled(True)
             self.__set_blink_btn_light_server(False)
             self.__terminal_text.clear()
+
+    def __exit_signal(self):
+        if self.__foxapi.is_running():
+            yes_no = YesNoDialog('سرور روشن است و امکان خروج وجود ندارد!', yes_msg='فهمیدم', no_msg='عدم مشاهده')
+            yes_no.exec_()
+        else:
+            self.window().close()
 
     def __set_blink_btn_light_server(self,  is_light: bool | None=True):
         if is_light:

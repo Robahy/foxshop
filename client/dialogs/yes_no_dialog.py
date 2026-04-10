@@ -9,13 +9,16 @@ import os
 
 
 class YesNoDialog(QDialog):
-    def __init__(self, message: str):
+    def __init__(self, msg: str, yes_msg: str = 'بله',no_msg: str  = 'خیر'):
         super().__init__()
         
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        self.__setup_ui(message)
+        self.__setup_ui(msg, yes_msg, no_msg)
         self.__signals()
         
+        self.yes_msg = yes_msg
+        self.no_msg  = no_msg
+
         try:
             with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'yes_no_dialog.qss'), 'r') as f:
                 self.setStyleSheet(f.read())
@@ -24,7 +27,7 @@ class YesNoDialog(QDialog):
 
         self.showFullScreen()
 
-    def __setup_ui(self, msg):
+    def __setup_ui(self, msg: str, yes_msg: str, no_msg: str):
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignCenter)
 
@@ -38,7 +41,7 @@ class YesNoDialog(QDialog):
         lbl_msg.setObjectName("msg")
         lbl_msg.setAlignment(Qt.AlignCenter)
 
-        self.__btns = BtnYesNo(yes_msg='بله', no_msg='خیر')
+        self.__btns = BtnYesNo(yes_msg= yes_msg, no_msg= no_msg)
         
         # Add Total
         main_layout.addWidget(lbl_warning)

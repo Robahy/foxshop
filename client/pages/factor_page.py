@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
                              QTableWidget, QLineEdit, QLabel, QPushButton,
                              QGridLayout, QFrame, QHeaderView, QDialog,
                              QTableWidgetItem, QAbstractItemView, QStackedWidget)
-from PyQt5.QtCore import Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
+from PyQt5.QtCore import (Qt, QTime, QTimer, QPropertyAnimation, QRect, QEasingCurve,
+                        QSequentialAnimationGroup, QThread, pyqtSignal)
 from PyQt5.QtGui import QFont, QColor, QPixmap
 from dialogs import YesNoDialog, NumberDialog, CashDialog
 from my_factor import MyFactor
@@ -107,8 +108,29 @@ class FactorTableWidget(QTableWidget):
             return False
         return True
 
+
+class BarcodeWorker(QThread):
+    result_ready = pyqtSignal(object)
+    error_ready  = pyqtSignal()
+
+    def __init__(self, foxapi, barcode):
+        super().__init__()
+        self.foxapi = foxapi
+        self.barcode = barcode
+
+    def run(self):
+        try:
+            product = self.foxapi.get_product_by_barcode(self.barcode)
+            if product:
+                self.result_ready.emit(product)
+            else:
+                self.error_ready.emit()
+        except Exception:
+            self.error_ready.emit()
+
+
 class FactorPage(QWidget):
-    def __init__(self, changer_page, fastapi,
+    def __init__(self, changer_page, foxapi,
                 factor_id: int   = -1,
                 personnel_id:int = -1,
                 customer_id: int = -1,
@@ -123,10 +145,10 @@ class FactorPage(QWidget):
         self.__BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.__DIR_FACES = os.path.join(self.__BASE_DIR, '..', 'static', 'faces')
         self.__changer_page = changer_page
-        self.__fastapi = fastapi
+        self.__foxapi = foxapi
         self.__setup_ui()
         try:
-            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_main.qss'), 'r') as f:
+            with open(os.path.join(self.__BASE_DIR, '..', 'qss', 'factor_page.qss'), 'r') as f:
                 style = f.read()
                 self.setStyleSheet(style)
         except:
@@ -474,22 +496,24 @@ class FactorPage(QWidget):
     
     def __return_peresed_line_edit_signal(self):
         barcode = self.__line_edit_barcode.text()
-        if not self.__add_item_by_barcode(barcode):
-            winsound.MessageBeep()
+        self.__add_item_by_barcode(barcode)
         self.__line_edit_barcode.setText('')
+        self.__line_edit_barcode.setFocus()
 
     def __add_item_by_barcode(self, barcode) -> bool:
+        self.worker = BarcodeWorker(self.__foxapi, barcode)
+        self.worker.result_ready.connect(self.__add_item)
+        self.worker.error_ready.connect(lambda: winsound.MessageBeep())
+        self.worker.start()
+
+    def __add_item(self, product):
         try:
-            product = self.__fastapi.get_product_by_barcode(barcode)
-            if product:
-                self.myfactor.add_product(
-                    product.get('barcode'),
-                    product.get('pname'),
-                    product.get('price'),
-                    product.get('off')
-                )
-            else:
-                raise RuntimeError
+            self.myfactor.add_product(
+                product.get('barcode'),
+                product.get('pname'),
+                product.get('price'),
+                product.get('off')
+            )
         except Exception:
             return False
         finally:
@@ -617,7 +641,9 @@ class FactorPage(QWidget):
         self.__btn_cancel_payment.setDisabled(not sum(self.myfactor.payment_amount))
         
     def __back_to_main_page_signal(self):
-        self.__changer_page.setCurrentIndex(0)
+        yes_no = YesNoDialog('آیا میخواهید خارج شوید؟', yes_msg='خروج')
+        if yes_no.exec_() == QDialog.Accepted:
+            self.__changer_page.setCurrentIndex(0)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

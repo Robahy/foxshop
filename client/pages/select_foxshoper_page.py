@@ -82,6 +82,14 @@ class SelectFoxShoperPage(QWidget):
         self.__list.clear()
         self.__list.addItems([i.get('fname') for i in self.__personnel_cash_list])
 
+    def keyPressEvent(self, event):
+        # Enter = accept
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.__selected_signal()
+
+        # Esc = reject
+        if event.key() == Qt.Key_Escape:
+            self.close()
 
     def closeEvent(self, event):
         self.__changer_page.setCurrentIndex(0)
