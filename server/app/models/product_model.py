@@ -11,3 +11,5 @@ class Product(Base):
     off     = Column(Integer, nullable=False)
     no      = Column(Integer, nullable=False)
     barcode = Column(Integer, nullable=False, unique=True, index=True)
+
+    items = relationship('FactorItem', back_populates='product', lazy='select')

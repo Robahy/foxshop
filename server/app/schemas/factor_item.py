@@ -2,18 +2,6 @@ from pydantic import BaseModel, Field
 
 
 class FactorItemBase(BaseModel):
-    factor_id: int  = Field(
-        title="Factor ID",
-        description="Factor id",
-        alias="Factor id",
-        examples=2,
-    )
-    product_id: int = Field(
-        title="Product ID",
-        description="procuct id",
-        alias="Product id",
-        examples=2,
-    )
     price: int      = Field(
         title="PRICE",
         description="price product",
@@ -40,9 +28,21 @@ class FactorItemBase(BaseModel):
     )
 
 class FactorItemCreate(FactorItemBase):
-    pass
+    factor_id: int  = Field(
+        title="Factor ID",
+        description="Factor id",
+        alias="Factor id",
+        examples=2,
+    )
+    product_id: int = Field(
+        title="Product ID",
+        description="procuct id",
+        alias="Product id",
+        examples=2,
+    )
 
 class FactorItemOut(FactorItemBase):
     id: int
+    pname: str
     class Config:
         from_attributes = True

@@ -5,7 +5,7 @@ from datetime import datetime
 from app.utils.log_decorator import log
 
 @log
-def create_factor(db: Session, factor: FactorCreat) -> Factor:
+def create_factor(db: Session, factor: FactorCreat):
     """
     Create New Factor (items = 0)
     """
@@ -20,47 +20,8 @@ def create_factor(db: Session, factor: FactorCreat) -> Factor:
     return new_factor
 
 @log
-def factor_item_delete_all(db: Session, factor_id: int) -> int:
+def factor_get_by_id(db: Session, id: int):
     """
-    Delete item all by factor ID
-    or Restart items
-    """
-    factor = db.get(Factor, factor_id)
-    if not factor:
-        return False
-    factor.total = 0
-
-    deleted = db.query(FactorItem).filter(FactorItem.factor_id == factor_id).delete()
-    db.commit()
-    return deleted
-
-@log
-def factor_item_add(db: Session, item: FactorItemCreate) -> FactorItem | bool:
-    """
-    Add Item Factor
-    """
-    factor = db.get(Factor, item.factor_id)
-    if not factor:
-        return False
-    factor.edit_at = datetime.utcnow()
-    factor.total   += item.total
-
-    new_item = FactorItem(
-        factor_id  = item.factor_id,
-        product_id = item.product_id,
-        price      = item.price,
-        off        = item.off,
-        no         = item.no,
-        total      = item.total
-    )
-    db.add(new_item)
-    db.commit()
-    db.refresh(new_item)
-    return new_item
-
-@log
-def factor_get_by_id(db: Session, id: int) -> Factor | bool:
-    """
-    Get Full Facotr by id
+    Get Facotr by id
     """
     return db.get(Factor, id) or False

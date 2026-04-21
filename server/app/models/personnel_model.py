@@ -5,7 +5,7 @@ from app.database import Base
 class Personnel(Base):
     __tablename__ = 'personnels'
 
-    id            = Column(Integer, primary_key=True, index=True)
+    id            = Column(Integer, primary_key=True)
     face_id       = Column(String , default="base.jpg")
     fname         = Column(String , nullable=False)
     code          = Column(Integer, nullable=False, unique=True)
