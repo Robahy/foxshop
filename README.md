@@ -1,8 +1,10 @@
 # FoxShop
 
+<a href="#how-start">Go to Quick Start</a>
+
 ## Project Status
 - License: MIT
-- Python Version: >=3.10
+- Python Version: <= 3.10
 - Development Status: Beta
 
 ## Introduction
@@ -15,9 +17,9 @@ It manages products, inventory, sales transactions, and authentication while fol
 - Real-time sales and inventory management  
 - Desktop client built with Python & PyQt5
 
-## Quick Start
+<h2 id="how-start">Quick Start</h2>
 ### Prerequisites
-- Python >=3.10
+- Python <=3.10
 
 ### Installation
 1. Clone the repository.
