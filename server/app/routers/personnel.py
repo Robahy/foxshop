@@ -33,7 +33,7 @@ def personnel_get_by_id(personnel_id: int, db: Session = Depends(get_db)):
     return personnel
 
 @router.post('/',response_model=PersonnelOut, status_code=status.HTTP_201_CREATED)
-def personnel_crate(new_personnel: PersonnelCreate, db: Session = Depends(get_db)):
+def personnel_create(new_personnel: PersonnelCreate, db: Session = Depends(get_db)):
     return crud.create_personnel(db, new_personnel)
 
 @router.put('/', response_model=PersonnelOut, status_code=status.HTTP_200_OK)

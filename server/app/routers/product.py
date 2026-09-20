@@ -22,7 +22,10 @@ def product_get_by_brcode(product_barcode:int, db: Session = Depends(get_db)):
 
 @router.post('/', response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def product_create(new_product: ProductCreate, db: Session = Depends(get_db)):
-    return crud.create_product(db, new_product)
+    product = crud.create_product(db, new_product)
+    if not product:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    return product
 
 @router.put('/', response_model=ProductOut, status_code=status.HTTP_200_OK)
 def product_update_by_id(update_product: ProductUpdate, db: Session = Depends(get_db)):

@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from app.models import Product
 from app.schemas import ProductCreate, ProductUpdate
-from app.utils.log_decorator import log
 
-@log
+
+
 def create_product(db: Session, product: ProductCreate):
     """
     Create New Product
@@ -20,21 +20,21 @@ def create_product(db: Session, product: ProductCreate):
     db.refresh(new_product)
     return new_product
 
-@log
+
 def product_get_all(db: Session):
     """
     Product Get All
     """
     return db.query(Product).all()
 
-@log
+
 def product_get_by_barcode(db: Session, barcode: int):
     """
     Get Product by barcode
     """
     return db.query(Product).filter(Product.barcode == barcode).first() or False
 
-@log
+
 def product_update_by_id(db: Session, update_product: ProductUpdate):
     """
     Update Product by id
@@ -52,7 +52,7 @@ def product_update_by_id(db: Session, update_product: ProductUpdate):
     db.refresh(product)
     return product
 
-@log
+
 def product_delete_by_id(db: Session, id: int):
     """
     Delete Product by id
@@ -65,7 +65,7 @@ def product_delete_by_id(db: Session, id: int):
     db.commit()
     return product
 
-@log
+
 def product_delete_all(db: Session) -> int:
     """
     Delete all Product by id

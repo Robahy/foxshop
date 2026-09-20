@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String,ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 from datetime import datetime
-from jdatetime import datetime as jdatetime
 
 class Factor(Base):
     __tablename__ = 'factors'
@@ -11,9 +10,10 @@ class Factor(Base):
     customer_id  = Column(Integer , ForeignKey('customers.id'), nullable=False)
     personnel_id = Column(Integer , ForeignKey('personnels.id'), nullable=False)
     created_at   = Column(DateTime, default=datetime.utcnow)
-    jcreate_at   = Column(DateTime, default=jdatetime.utcnow)
+    jcreate_at   = Column(DateTime, nullable=False)
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     total        = Column(Integer , nullable=False)
+    is_return    = Column(Boolean, default=False)
     code         = Column(String  , nullable=False, unique=True, index=True)
 
     customer  = relationship('Customer'  , back_populates='factors')

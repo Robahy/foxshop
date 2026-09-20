@@ -161,8 +161,6 @@ class FactorPage(QWidget):
         self.__signals()
         self.__check_btn_disabled()
 
-        if personnel_id == -1:
-            self.__select_shoper_signal()
         self.showFullScreen()
         
     def __setup_ui(self):
@@ -466,7 +464,6 @@ class FactorPage(QWidget):
         self.__btn_set_num_product.clicked.connect(self.__set_number_item_signal)
         self.__btn_cancel_item.clicked.connect(self.__remove_item_signal)
         self.__btn_cancel_factor.clicked.connect(self.__remove_factor_signal)
-        self.__btn_change_shoper.clicked.connect(self.__select_shoper_signal)
         # payment menu
         self.__btn_pay_cash.clicked.connect(self.__cash_payment_signal)
 
@@ -486,13 +483,6 @@ class FactorPage(QWidget):
             self.__remove_item_signal()
         else:
             super().keyPressEvent(event)
-
-    def __select_shoper_signal(self) -> bool:
-        try:
-            pass
-        except Exception:
-            return False
-        return True
     
     def __return_peresed_line_edit_signal(self):
         barcode = self.__line_edit_barcode.text()
@@ -552,6 +542,7 @@ class FactorPage(QWidget):
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
+            self.__register_factor()
         return True
     
     def __cash_payment_cancle_signal(self):
@@ -566,6 +557,24 @@ class FactorPage(QWidget):
             self.__table.reload()
             self.__reload_status()
             self.__check_btn_disabled()
+        return True
+
+    def __register_factor(self):
+        if not self.myfactor.balance:
+            return False
+        try:
+            print(self.myfactor)
+            if not self.myfactor.reset_factor(
+                        factor_id    = -1,
+                        personnel_id = self.myfactor.personnel_id,
+                        customer_id  = -1,
+                        products     = [],
+                        cash         = 0,
+                        card         = 0
+                    ):
+                    raise RuntimeError
+        except Exception:
+            return False
         return True
 
     def __remove_item_signal(self):

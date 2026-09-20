@@ -6,7 +6,8 @@ class Customer(Base):
     __tablename__ = 'customers'
 
     id      = Column(Integer, primary_key=True)
-    card_id = Column(String, nullable=True, index=True)
     number  = Column(String, nullable=True, unique=True)
+    bale_id = Column(String , default="")
 
-    factors = relationship('Factor', back_populates='customer')
+    factors  = relationship('Factor', back_populates='customer')
+    id_cards = relationship('CustomerCards', back_populates="customer")

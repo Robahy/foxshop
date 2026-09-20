@@ -5,19 +5,20 @@ class MyFactor():
                 customer_id: int = -1,
                 products: list   = [],
                 cash: int        = 0,
-                card: int        = 0
+                card: int        = 0,
+                bale: int        = 0
                 ):
         """
         Create A myFactor
         """
-        self.__myfactor = {}
         self.reset_factor(
             factor_id    = factor_id,
             personnel_id = personnel_id,
             customer_id  = customer_id,
             products     = products,
             cash         = cash,
-            card         = card
+            card         = card,
+            bale         = bale
         )
 
     def set_factor_id(self, factor_id: int) -> bool:
@@ -194,7 +195,7 @@ class MyFactor():
                 total_off += (price * product.get('off')/100) * product.get('no')
         return int(total_off)
 
-    def set_payment(self, *, cash_amount=0, card_amount=0):
+    def set_payment(self, *, cash_amount:int =0, card_amount:int =0, bale_amount:int =0):
         """
         Set Payment
         """
@@ -216,7 +217,8 @@ class MyFactor():
         """
         return (
                 self.__myfactor.setdefault('cash', 0),
-                self.__myfactor.setdefault('card', 0)
+                self.__myfactor.setdefault('card', 0),
+                self.__myfactor.setdefault('bale', 0),
         )
     
     @property
@@ -239,7 +241,8 @@ class MyFactor():
               customer_id: int,
               products: list,
               cash: int,
-              card: int
+              card: int,
+              bale: int
             ):
         """
         Reaset myFactor
@@ -251,7 +254,8 @@ class MyFactor():
                 "customer_id"    : customer_id,
                 "products"       : products,
                 "cash"           : cash,
-                "card"           : card
+                "card"           : card,
+                "bale"           : bale
             }
         except Exception:
             return False
@@ -293,6 +297,7 @@ class MyFactor():
         res += f"\n│ {f'Total off : {self.total_off}'.ljust(width-4)} │"
         res += f"\n│ {f'Cash           : {payment_amount[0]}'.ljust(width-4)} │"
         res += f"\n│ {f'Card           : {payment_amount[1]}'.ljust(width-4)} │"
+        res += f"\n│ {f'bale           : {payment_amount[2]}'.ljust(width-4)} │"
         res += f"\n│ {f'Paid           : {self.paid}'.ljust(width-4)} │"
         res += f"\n│ {f'Balance        : {self.balance}'.ljust(width-4)} │"
         res += f"\n├{'─'*(width-2)}┤"

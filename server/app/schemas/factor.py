@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from typing import List
 from .factor_item import FactorItemOut
 from datetime import datetime
-from jdatetime import datetime as jdatetime
 
 class FactorBase(BaseModel):
     customer_id: int = Field(
@@ -18,18 +17,15 @@ class FactorBase(BaseModel):
         examples=10,
     )
 
-class FactorCreat(FactorBase):
+class FactorCreate(FactorBase):
     pass
-
-class FactorUpdate(BaseModel):
-    total: int
 
 class FactorOut(FactorBase):
     id: int
     created_at: datetime
-    jcreate_at: jdatetime
+    jcreate_at: datetime
     updated_at: datetime
-    code: str
+    code      : str
     items     : List[FactorItemOut]
     class Config:
         from_attributes = True

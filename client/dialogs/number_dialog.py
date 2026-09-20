@@ -112,9 +112,9 @@ class NumberDialog(QDialog):
         self.line_edit.setFocus()
 
     def __changed_line_edit(self, text):
-        filtered = "".join(ch for ch in text if ch in digits)
+        filtered = int("".join(ch for ch in text if ch in digits) or "0")
         self.__num = int(filtered)
-        self.line_edit.setText(f"{filtered or '0'}")
+        self.line_edit.setText(f"{filtered,}")
         self.line_edit.setFocus()
 
     def closeEvent(self, event):

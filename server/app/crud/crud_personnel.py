@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
 from app.models import Personnel
 from app.schemas import PersonnelCreate, PersonnelUpdate
-from app.utils.log_decorator import log
+
 from app.utils.security import password_hash, verify_password
 from datetime import datetime
 import random
 
-@log
+
 def create_personnel(db: Session, personnel: PersonnelCreate) -> Personnel:
     """
     Create New Personnel
@@ -29,42 +29,42 @@ def create_personnel(db: Session, personnel: PersonnelCreate) -> Personnel:
     db.refresh(new_personnel)
     return new_personnel
 
-@log
+
 def personnel_get_all(db: Session):
     """
     Get Personnel ALL
     """
     return db.query(Personnel).all()
 
-@log
+
 def personnel_cash_get_all(db: Session):
     """
     Get PersonnelCash ALL
     """
     return db.query(Personnel).filter(Personnel.level >= 2).all()
 
-@log
+
 def personnel_supervisor_get_all(db: Session):
     """
     Get PersonnelSupervisor ALL
     """
     return db.query(Personnel).filter(Personnel.level >= 3).all()
 
-@log
+
 def personnel_manager_bale_id_get_all(db: Session):
     """
     Get PersonnelSupervisor is manager bale ALL
     """
     return [i.bale_id for i in db.query(Personnel).filter(Personnel.level >= 3).filter(Personnel.bale_id != "").all()]
 
-@log
+
 def personnel_get_by_id(db: Session, id: int):
     """
     Get Personnel by id
     """
     return db.get(Personnel, id) or False
 
-@log
+
 def personnel_update_by_id(db: Session, update_personnel: PersonnelUpdate):
     """
     Update Personnel by id
@@ -84,7 +84,7 @@ def personnel_update_by_id(db: Session, update_personnel: PersonnelUpdate):
     db.refresh(personnel)
     return personnel
 
-@log
+
 def personnel_delete_by_id(db: Session, id: int):
     personnel = db.get(Personnel, id)
     if not personnel:
